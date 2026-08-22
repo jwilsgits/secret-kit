@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Secret Kit</title>
+  <link rel="stylesheet" href="app.css">
+</head>
+<body>
+  <div class="app no-print">
+    <header class="top">
+      <div>
+        <h1>Secret Kit</h1>
+        <p class="sub">Offline · nothing saved</p>
+      </div>
+      <span class="pill" id="ready-pill">Starting…</span>
+    </header>
+
+    <nav class="tabs" id="tabs">
+      <button type="button" data-tab="passwords" class="on">Passwords</button>
+      <button type="button" data-tab="keys">Keys</button>
+      <button type="button" data-tab="verify">Verify</button>
+      <button type="button" data-tab="derive">Derive</button>
+    </nav>
+
+    <section class="panel" id="panel-passwords">
+      <label class="field">
+        <span>Generate</span>
+        <select id="type">
+          <option value="pin">PIN</option>
+          <option value="password">Random password</option>
+          <option value="memorable">Memorable password</option>
+          <option value="diceware">Diceware phrase</option>
+        </select>
+      </label>
+
+      <section class="card opts" id="opts-pin">
+        <div class="row">
+          <label class="field grow">
+            <span>Characters</span>
+            <select id="pin-charset">
+              <option value="numeric">Numeric</option>
+              <option value="letters">Letters</option>
+              <option value="alphanumeric">Alphanumeric</option>
+            </select>
+          </label>
+          <fieldset class="field grow">
+            <legend>Length</legend>
+            <div class="seg" id="pin-length-seg">
+              <button type="button" data-len="4">4</button>
+              <button type="button" data-len="6" class="on">6</button>
+              <button type="button" data-len="8">8</button>
+              <button type="button" data-len="other">Other</button>
+            </div>
+          </fieldset>
+        </div>
+        <label class="field hidden" id="pin-other-wrap">
+          <span>Custom length (4–32)</span>
+          <input id="pin-other" type="number" min="4" max="32" value="10">
+        </label>
+        <label class="check">
+          <input id="pin-lookalikes" type="checkbox">
+          Avoid look-alikes (0 O 1 l I)
+        </label>
+      </section>
+
+      <section class="card opts hidden" id="opts-password">
+        <div class="seg" id="pw-presets">
+          <button type="button" data-preset="simple" class="on">Simple · 16</button>
+          <button type="button" data-preset="strong">Strong · 20</button>
+          <button type="button" data-preset="paranoid">Paranoid · 32</button>
+        </div>
+        <details class="advanced">
+          <summary>Advanced</summary>
+          <div class="checks">
+            <label class="check"><input id="pw-lower" type="checkbox" checked> Lowercase</label>
+            <label class="check"><input id="pw-upper" type="checkbox" checked> Uppercase</label>
+            <label class="check"><input id="pw-digits" type="checkbox" checked> Digits</label>
+            <label class="check"><input id="pw-symbols" type="checkbox"> Symbols</label>
+          </div>
+          <label class="field">
+            <span>Length (8–64)</span>
+            <input id="pw-length" type="number" min="8" max="64" value="16">
+          </label>
+        </details>
+        <label class="check">
+          <input id="pw-lookalikes" type="checkbox">
+          Avoid look-alikes (0 O 1 l I)
+        </label>
+      </section>
+
+      <section class="card opts hidden" id="opts-memorable">
+        <div class="row">
+          <fieldset class="field grow">
+            <legend>Words</legend>
+            <div class="seg" id="mem-groups">
+              <button type="button" data-groups="3" class="on">3</button>
+              <button type="button" data-groups="4">4</button>
+              <button type="button" data-groups="5">5</button>
+            </div>
+          </fieldset>
+          <fieldset class="field grow">
+            <legend>Separator</legend>
+            <div class="seg" id="mem-sep">
+              <button type="button" data-sep="-" class="on">-</button>
+              <button type="button" data-sep=".">.</button>
+              <button type="button" data-sep="_">_</button>
+            </div>
+          </fieldset>
+        </div>
+        <p class="hint">Full BIP-39 English words, two digits each. Example: catalog01-planet04-student77</p>
+      </section>
+
+      <section class="card opts hidden" id="opts-diceware">
+        <fieldset class="field">
+          <legend>Words</legend>
+          <div class="seg" id="dw-words">
+            <button type="button" data-dw="4">4</button>
+            <button type="button" data-dw="5">5</button>
+            <button type="button" data-dw="6" class="on">6</button>
+            <button type="button" data-dw="7">7</button>
+            <button type="button" data-dw="8">8</button>
+          </div>
+        </fieldset>
+        <p class="hint">Full BIP-39 English words, spaces only. Easier to type than a random password.</p>
+      </section>
+
+      <div id="entropy-passwords"></div>
+      <button type="button" class="primary" id="generate">Generate</button>
+      <p class="error hidden" id="error-passwords"></p>
+      <section class="card result hidden" id="result-passwords">
+        <div class="result-head">
+          <span id="pw-result-label">Result</span>
+          <span class="hint" id="pw-result-meta"></span>
+        </div>
+        <pre id="pw-result-text" class="secret"></pre>
+        <div class="actions">
+          <button type="button" id="pw-hide">Hide</button>
+          <button type="button" id="pw-copy">Copy</button>
+          <button type="button" id="pw-print">Print sheet</button>
+          <button type="button" id="pw-clear">Clear</button>
+        </div>
+        <p class="hint" id="pw-clip"></p>
+      </section>
+    </section>
+
+    <section class="panel hidden" id="panel-keys">
+      <label class="field">
+        <span>Generate</span>
+        <select id="key-type">
+          <option value="seed">BIP-39 wallet seed</option>
+          <option value="hex">Hex key</option>
+          <option value="uuid">UUID v4</option>
+          <option value="codes">Backup codes</option>
+        </select>
+      </label>
+      <section class="card opts" id="opts-seed">
+        <fieldset class="field">
+          <legend>BIP-39 English words</legend>
+          <div class="seg" id="seed-words">
+            <button type="button" data-words="12" class="on">12</button>
+            <button type="button" data-words="24">24</button>
+          </div>
+        </fieldset>
+        <p class="hint">This tab only creates the mnemonic. A BIP-39 passphrase is entered on Derive, not here. Import the words into a real wallet, or Send to Derive for this session.</p>
+      </section>
+      <section class="card opts hidden" id="opts-hex">
+        <fieldset class="field">
+          <legend>Bytes</legend>
+          <div class="seg" id="hex-bytes">
+            <button type="button" data-bytes="16">16</button>
+            <button type="button" data-bytes="32" class="on">32</button>
+            <button type="button" data-bytes="64">64</button>
+          </div>
+        </fieldset>
+      </section>
+      <section class="card opts hidden" id="opts-codes">
+        <fieldset class="field">
+          <legend>How many codes</legend>
+          <div class="seg" id="code-count">
+            <button type="button" data-count="8" class="on">8</button>
+            <button type="button" data-count="10">10</button>
+            <button type="button" data-count="16">16</button>
+          </div>
+        </fieldset>
+        <p class="hint">Look-alike-free groups like ab3dk-mnpq7. For sites that give you a backup-code list.</p>
+      </section>
+      <div id="entropy-keys"></div>
+      <button type="button" class="primary" id="gen-seed">Generate</button>
+      <p class="error hidden" id="error-keys"></p>
+      <section class="card result hidden" id="result-keys">
+        <div class="result-head">
+          <span id="keys-result-label">Result</span>
+          <span class="hint" id="seed-meta"></span>
+        </div>
+        <div id="seed-gate" class="hidden">
+          <p>This is a wallet seed. Anyone who sees it can spend the funds.</p>
+          <button type="button" class="primary" id="seed-reveal">Reveal words</button>
+        </div>
+        <div id="seed-body" class="hidden">
+          <ol id="seed-words-list" class="words hidden"></ol>
+          <pre id="keys-result-text" class="secret hidden"></pre>
+          <div class="actions">
+            <button type="button" id="seed-hide">Hide</button>
+            <button type="button" id="seed-copy">Copy</button>
+            <button type="button" id="seed-send" class="hidden">Send to Derive</button>
+            <button type="button" id="seed-print">Print sheet</button>
+            <button type="button" id="seed-clear">Clear</button>
+          </div>
+          <p class="hint" id="seed-clip"></p>
+        </div>
+      </section>
+    </section>
+
+    <section class="panel hidden" id="panel-verify">
+      <section class="card">
+        <h2 class="card-title">File checksum</h2>
+        <label class="field">
+          <span>Vendor hash (hex). Algorithm is detected from length.</span>
+          <input id="hash-expected" type="text" autocomplete="off" spellcheck="false" placeholder="SHA-256 is 64 hex characters">
+        </label>
+        <p class="hint" id="hash-detect">Paste a hash to detect MD5 / SHA-1 / SHA-256 / SHA-512</p>
+        <label class="field hidden" id="hash-algo-wrap">
+          <span>Algorithm (length was not recognized)</span>
+          <select id="hash-algo">
+            <option value="auto">Autodetect</option>
+            <option value="sha256">SHA-256</option>
+            <option value="sha512">SHA-512</option>
+            <option value="sha1">SHA-1 (legacy match only)</option>
+            <option value="md5">MD5 (legacy match only)</option>
+          </select>
+        </label>
+        <div class="drop" id="hash-drop">
+          <span id="hash-file-label">Choose a file, or drop one here</span>
+          <button type="button" id="hash-pick">Choose file…</button>
+        </div>
+        <button type="button" class="primary" id="hash-run">Check file</button>
+        <p class="error hidden" id="error-hash"></p>
+        <div id="hash-result" class="hidden">
+          <p class="verdict" id="hash-verdict"></p>
+          <pre class="secret small" id="hash-detail"></pre>
+          <button type="button" id="hash-copy">Copy computed hash</button>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2 class="card-title">Compare two files</h2>
+        <p class="hint">Same algorithm for both. SHA-256 by default.</p>
+        <div class="row">
+          <button type="button" id="cmp-pick-a">File A…</button>
+          <span class="hint" id="cmp-a-label">none</span>
+        </div>
+        <div class="row">
+          <button type="button" id="cmp-pick-b">File B…</button>
+          <span class="hint" id="cmp-b-label">none</span>
+        </div>
+        <button type="button" class="primary" id="cmp-run">Compare</button>
+        <p class="error hidden" id="error-cmp"></p>
+        <p class="verdict hidden" id="cmp-verdict"></p>
+        <pre class="secret small hidden" id="cmp-detail"></pre>
+      </section>
+
+      <section class="card">
+        <h2 class="card-title">Hash a folder</h2>
+        <p class="hint">SHA-256 of every non-hidden file, streamed. Does not follow the same “vendor paste” flow.</p>
+        <div class="row">
+          <button type="button" id="folder-pick">Choose folder…</button>
+          <span class="hint" id="folder-label">none</span>
+        </div>
+        <button type="button" class="primary" id="folder-run">Hash folder</button>
+        <p class="error hidden" id="error-folder"></p>
+        <pre class="secret small hidden" id="folder-detail"></pre>
+        <button type="button" class="hidden" id="folder-copy">Copy list</button>
+      </section>
+
+      <section class="card">
+        <h2 class="card-title">BIP-39 checksum</h2>
+        <label class="field">
+          <span>Paste or type 12 or 24 English words</span>
+          <textarea id="mn-check" rows="3" autocomplete="off" spellcheck="false"></textarea>
+        </label>
+        <div class="drop" id="mn-drop">Or drop a small text file of the words</div>
+        <button type="button" class="primary" id="mn-run">Check phrase</button>
+        <p class="error hidden" id="error-mn"></p>
+        <p class="verdict hidden" id="mn-verdict"></p>
+      </section>
+      <button type="button" id="verify-clear">Clear Verify</button>
+    </section>
+
+    <section class="panel hidden" id="panel-derive">
+      <section class="card opts">
+        <fieldset class="field">
+          <legend>Derive</legend>
+          <div class="seg" id="derive-kind">
+            <button type="button" data-kind="btc" class="on">Bitcoin · BIP-84</button>
+            <button type="button" data-kind="nostr">Nostr</button>
+          </div>
+        </fieldset>
+        <fieldset class="field hidden" id="nostr-mode-wrap">
+          <legend>Nostr source</legend>
+          <div class="seg" id="nostr-mode">
+            <button type="button" data-mode="mnemonic" class="on">From mnemonic · NIP-06</button>
+            <button type="button" data-mode="fresh">Fresh pair</button>
+            <button type="button" data-mode="inspect">Inspect nsec</button>
+          </div>
+          <p class="hint" id="nostr-method-hint">NIP-06 path m/44'/1237'/0'/0/0</p>
+        </fieldset>
+        <div id="inspect-wrap" class="hidden">
+          <label class="field">
+            <span>nsec (wiped after inspect). This cannot produce seed words.</span>
+            <input id="inspect-nsec" type="password" autocomplete="off" spellcheck="false">
+          </label>
+          <label class="field">
+            <span>Optional npub to compare</span>
+            <input id="inspect-npub" type="text" autocomplete="off" spellcheck="false" placeholder="npub1…">
+          </label>
+        </div>
+        <div class="row" id="btc-opts">
+          <fieldset class="field grow">
+            <legend>Receive addresses</legend>
+            <div class="seg" id="btc-recv">
+              <button type="button" data-n="1">1</button>
+              <button type="button" data-n="5" class="on">5</button>
+              <button type="button" data-n="10">10</button>
+            </div>
+          </fieldset>
+          <fieldset class="field grow">
+            <legend>Change addresses</legend>
+            <div class="seg" id="btc-chg">
+              <button type="button" data-n="0">0</button>
+              <button type="button" data-n="5" class="on">5</button>
+              <button type="button" data-n="10">10</button>
+            </div>
+          </fieldset>
+        </div>
+        <label class="check" id="taproot-wrap">
+          <input id="btc-taproot" type="checkbox">
+          Also derive BIP-86 taproot (bc1p…)
+        </label>
+        <div id="derive-words-wrap">
+          <label class="field">
+            <span>Mnemonic (typed, pasted, sent from Keys, or dropped). Wiped after derive.</span>
+            <textarea id="derive-mnemonic" rows="3" autocomplete="off" spellcheck="false"></textarea>
+          </label>
+          <label class="field">
+            <span>Optional BIP-39 passphrase</span>
+            <div class="row">
+              <input id="derive-pass" type="password" autocomplete="off" spellcheck="false" class="grow">
+              <button type="button" class="ghost" id="derive-pass-toggle">Show</button>
+            </div>
+          </label>
+          <div class="drop" id="derive-drop">Drop a text file of the words</div>
+          <button type="button" id="derive-clear-words">Clear words only</button>
+        </div>
+      </section>
+      <button type="button" class="primary" id="derive-run">Derive</button>
+      <p class="error hidden" id="error-derive"></p>
+      <section class="card result hidden" id="result-derive">
+        <div class="result-head">
+          <span id="derive-label">Derived</span>
+          <span class="hint" id="derive-meta"></span>
+        </div>
+        <dl class="kv" id="derive-public"></dl>
+        <div id="derive-priv-gate">
+          <p>Private material is hidden. It is as sensitive as the seed.</p>
+          <button type="button" id="derive-reveal-priv">Reveal private</button>
+        </div>
+        <dl class="kv hidden" id="derive-private"></dl>
+        <div class="actions">
+          <button type="button" id="derive-copy-pub">Copy public</button>
+          <button type="button" id="derive-print">Print public sheet</button>
+          <button type="button" id="derive-clear">Clear</button>
+        </div>
+        <p class="hint" id="derive-clip"></p>
+      </section>
+    </section>
+  </div>
+
+  <template id="entropy-template">
+    <section class="card entropy-card">
+      <div class="entropy-head">
+        <span>Extra entropy</span>
+        <span class="hint mouse-status">Mouse pad unused — OS CSPRNG is enough</span>
+      </div>
+      <div class="mouse-pad" tabindex="0">Move the mouse here to mix extra timing into the next generate</div>
+      <details class="advanced">
+        <summary>Advanced — dice or card shuffle</summary>
+        <label class="field">
+          <span>Dice rolls (digits 1–6, optional)</span>
+          <input class="dice" type="text" placeholder="e.g. 251634…" autocomplete="off" spellcheck="false">
+        </label>
+        <label class="field">
+          <span>52-card shuffle (optional, all 52 unique, like AS 2H TD KC)</span>
+          <textarea class="cards" rows="3" placeholder="Leave blank unless you shuffled a deck"></textarea>
+        </label>
+      </details>
+    </section>
+  </template>
+
+  <section id="print-sheet" class="print-only">
+    <h1>Secret Kit · write down, then close</h1>
+    <p id="print-type"></p>
+    <p id="print-when"></p>
+    <pre id="print-value"></pre>
+    <p id="print-pass-line" class="hidden">Passphrase stored separately: _______________</p>
+    <p>Notes / stored at: ________________________________</p>
+    <p class="fine">Do not photograph. Do not store digitally. Destroy this sheet if it is no longer needed.</p>
+  </section>
+
+  <script src="js/core.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/entropy.js"></script>
+  <script src="js/clipboard.js"></script>
+  <script src="js/passwords.js"></script>
+  <script src="js/keys.js"></script>
+  <script src="js/verify.js"></script>
+  <script src="js/derive.js"></script>
+  <script src="js/boot.js"></script>
+</body>
+</html>

@@ -1,0 +1,11 @@
+services:
+  secret-kit:
+    build: .
+    image: secret-kit:local
+    ports:
+      - "127.0.0.1:8765:8765"
+    read_only: true
+    tmpfs:
+      - /tmp
+    environment:
+      PYTHONDONTWRITEBYTECODE: "1"
