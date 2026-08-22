@@ -81,13 +81,38 @@ incus config device add <name> sk proxy listen=tcp:127.0.0.1:8765 connect=tcp:12
 
 Browse [http://127.0.0.1:8765](http://127.0.0.1:8765) on the host.
 
-## AppImage (Linux desktop, not shipped yet)
+## AppImage (Linux desktop)
 
-Phase 2. Until `scripts/build-appimage.sh` exists, the working pattern is HTTP + a desktop file that opens the browser:
+One file for a friend’s Linux laptop. It bundles CPython 3.12 and `ecdsa`, then serves the same loopback UI and opens the browser. It is not a native window (no WebKitGTK).
 
-1. Bundle CPython, `requirements-engine.txt`, and this tree (linuxdeploy or a relocatable venv).
-2. `Exec=` should run `app.py --http 127.0.0.1:8765` and `xdg-open http://127.0.0.1:8765`.
-3. Alternative: bundle pywebview + WebKitGTK and run without `--http` (native window). That is heavier and does not help Docker/OrbStack.
+On this Mac (Docker / OrbStack / Podman):
+
+```bash
+bash scripts/build-appimage.sh
+```
+
+If this Mac has no container runtime, the Linux laptop can build it from the git bundle instead (needs `curl` and `squashfs-tools`):
+
+```bash
+git clone secret-kit.bundle secret-kit
+cd secret-kit
+bash scripts/build-appimage.sh
+```
+
+On Linux x86_64, the same command builds natively. ARM laptops:
+
+```bash
+APPIMAGE_ARCH=aarch64 bash scripts/build-appimage.sh
+```
+
+Output: `dist/SecretKit-x86_64.AppImage` (about 25–35 MB). Send that file. They run:
+
+```bash
+chmod +x SecretKit-x86_64.AppImage
+./SecretKit-x86_64.AppImage
+```
+
+If FUSE is missing: `./SecretKit-x86_64.AppImage --appimage-extract-and-run`. Close the status dialog (or kill the process) to stop. Nothing is saved.
 
 Do not put GPU stacks, OpenStack, or a public registry in the AppImage.
 
