@@ -27,7 +27,7 @@ python3 -m pip install --user -r requirements-engine.txt
 python3 app.py --http 127.0.0.1:8765
 ```
 
-Docker, OrbStack, Podman, LXC, and a future AppImage: see **[PACKAGING.md](PACKAGING.md)**.
+Docker, OrbStack, Podman, LXC, and a Linux AppImage: see **[PACKAGING.md](PACKAGING.md)**. Build the AppImage with `bash scripts/build-appimage.sh` and send `dist/SecretKit-x86_64.AppImage`.
 
 Requires Python 3.9+. This PoC is pinned to `pywebview==5.3.2` and `pyobjc==11.1` because newer pyobjc 12.x does not build on Apple’s Command Line Tools Python 3.9.
 

@@ -1,0 +1,60 @@
+#!/bin/sh
+# Loopback HTTP UI, then the desktop browser. Close the status dialog (or kill
+# this process) to stop. Secrets stay in memory.
+set -eu
+
+HERE=$(dirname "$(readlink -f "$0")")
+APP="$HERE/opt/secret-kit"
+PY="$HERE/usr/bin/python3"
+HOST=127.0.0.1
+PORT=${SECRET_KIT_PORT:-8765}
+URL="http://${HOST}:${PORT}"
+
+export PYTHONDONTWRITEBYTECODE=1
+export PYTHONNOUSERSITE=1
+export PYTHONSAFEPATH=1
+
+PID=""
+cleanup() {
+  if [ -n "$PID" ]; then
+    kill "$PID" 2>/dev/null || true
+    wait "$PID" 2>/dev/null || true
+  fi
+}
+trap cleanup EXIT INT TERM
+
+cd "$APP"
+"$PY" app.py --http "${HOST}:${PORT}" &
+PID=$!
+
+i=0
+while [ "$i" -lt 80 ]; do
+  if "$PY" -c "import urllib.request; urllib.request.urlopen('$URL/', timeout=0.2).read()" 2>/dev/null; then
+    break
+  fi
+  if ! kill -0 "$PID" 2>/dev/null; then
+    echo "Secret Kit failed to start. Is port $PORT already in use?" >&2
+    wait "$PID" || true
+    PID=""
+    exit 1
+  fi
+  i=$((i + 1))
+  sleep 0.1
+done
+
+if command -v xdg-open >/dev/null 2>&1; then
+  xdg-open "$URL" >/dev/null 2>&1 || true
+elif command -v gio >/dev/null 2>&1; then
+  gio open "$URL" >/dev/null 2>&1 || true
+else
+  echo "Open $URL in a browser" >&2
+fi
+
+if command -v zenity >/dev/null 2>&1; then
+  zenity --info --title="Secret Kit" --width=360 --text="Secret Kit is running at ${URL}\n\nClose this window to stop. Nothing is saved." || true
+elif command -v kdialog >/dev/null 2>&1; then
+  kdialog --title "Secret Kit" --msgbox "Secret Kit is running at ${URL}\n\nClose this window to stop. Nothing is saved." || true
+else
+  wait "$PID"
+  PID=""
+fi
