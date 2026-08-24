@@ -7,5 +7,6 @@ services:
     read_only: true
     tmpfs:
       - /tmp
+    user: "nobody"
     environment:
       PYTHONDONTWRITEBYTECODE: "1"

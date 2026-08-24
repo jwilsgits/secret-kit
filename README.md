@@ -1,6 +1,6 @@
 # Secret Kit
 
-Local air-gap secret generator. Python owns all randomness. On this Mac it is a small native window; in Docker/OrbStack/LXC it is a loopback web UI. Nothing is saved to disk. Nothing is sent anywhere.
+Local air-gap secret generator. Python owns all randomness. On macOS it is a small native window; in Docker/OrbStack/LXC it is a loopback web UI. Nothing is saved to disk. Nothing is sent anywhere.
 
 Four tabs:
 
@@ -11,7 +11,7 @@ Four tabs:
 
 Nothing is saved. Leaving a tab or clicking Clear wipes that tab. After Derive, the mnemonic field is emptied. There is no in-app vault.
 
-## Run on this Mac
+## Run on macOS
 
 ```bash
 python3 -m pip install --user -r requirements-desktop.txt
@@ -31,7 +31,7 @@ Docker, OrbStack, Podman, LXC, and a Linux AppImage: see **[PACKAGING.md](PACKAG
 
 Requires Python 3.9+. This PoC is pinned to `pywebview==5.3.2` and `pyobjc==11.1` because newer pyobjc 12.x does not build on Apple’s Command Line Tools Python 3.9.
 
-## Offline copy (this Mac → another Mac)
+## Offline copy (macOS → another Mac)
 
 1. On a networked Mac: double-click `Prepare Offline Wheels.command`.
 2. Copy the whole folder (including `vendor/`) to the offline Mac.

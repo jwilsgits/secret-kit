@@ -28,10 +28,13 @@ case "$ARCH" in
 esac
 
 docker_engine() {
-  if command -v docker >/dev/null 2>&1; then
-    echo docker
+  # Prefer Podman when both exist (FOSS; matches RELEASE/PACKAGING guidance).
+  if [ -n "${CONTAINER_ENGINE:-}" ]; then
+    echo "$CONTAINER_ENGINE"
   elif command -v podman >/dev/null 2>&1; then
     echo podman
+  elif command -v docker >/dev/null 2>&1; then
+    echo docker
   else
     echo ""
   fi
@@ -44,7 +47,7 @@ if [ "${1:-}" != "--in-container" ]; then
     engine=$(docker_engine)
     if [ -z "$engine" ]; then
       echo "AppImage builds need Linux ($ARCH)." >&2
-      echo "On this Mac, start Docker / OrbStack / Podman and re-run:" >&2
+      echo "On macOS, start Docker / OrbStack / Podman and re-run:" >&2
       echo "  bash scripts/build-appimage.sh" >&2
       exit 1
     fi
@@ -134,13 +137,29 @@ mkdir -p "$APPDIR/usr/share/icons/hicolor/256x256/apps"
 cp "$APPDIR/secret-kit.png" "$APPDIR/usr/share/icons/hicolor/256x256/apps/secret-kit.png"
 
 echo "Packing AppImage…"
-curl -fsSL -o appimagetool "$TOOL_URL"
-chmod +x appimagetool
+# Prefer appimagetool; under QEMU user-mode its static-pie often cannot exec
+# ("Exec format error"). Fall back to type2 runtime + mksquashfs.
+RUNTIME_URL="https://github.com/AppImage/type2-runtime/releases/download/continuous/runtime-${ARCH}"
+curl -fsSL -o appimagetool.AppImage "$TOOL_URL"
+chmod +x appimagetool.AppImage
 mkdir -p "$ROOT/dist"
 OUT="$ROOT/dist/SecretKit-${ARCH}.AppImage"
-ARCH="$ARCH" APPIMAGE_EXTRACT_AND_RUN=1 ./appimagetool \
-  --no-appstream "$APPDIR" "$OUT"
+
+if APPIMAGE_EXTRACT_AND_RUN=1 ./appimagetool.AppImage --version >/dev/null 2>&1; then
+  ARCH="$ARCH" APPIMAGE_EXTRACT_AND_RUN=1 ./appimagetool.AppImage \
+    --no-appstream "$APPDIR" "$OUT"
+else
+  echo "appimagetool will not exec here (common under QEMU); packing with type2 runtime…"
+  curl -fsSL -o runtime "$RUNTIME_URL"
+  mksquashfs "$APPDIR" squashfs -root-owned -noappend -comp xz -all-root
+  cat runtime squashfs > "$OUT"
+fi
 
 chmod +x "$OUT"
+if command -v sha256sum >/dev/null 2>&1; then
+  (cd "$(dirname "$OUT")" && sha256sum "$(basename "$OUT")") | tee "${OUT}.sha256"
+elif command -v shasum >/dev/null 2>&1; then
+  (cd "$(dirname "$OUT")" && shasum -a 256 "$(basename "$OUT")") | tee "${OUT}.sha256"
+fi
 ls -lh "$OUT"
 echo "AppImage: $OUT"
