@@ -1,0 +1,4 @@
+# Windows desktop / portable build deps (no pyobjc — those pins are macOS-only).
+# Keep pywebview aligned with requirements-desktop.txt on macOS.
+-r requirements-engine.txt
+pywebview==5.3.2
