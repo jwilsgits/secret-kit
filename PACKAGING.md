@@ -2,6 +2,15 @@
 
 Multi-platform pocket-executable order, cadence, and definition of done: **[RELEASE.md](RELEASE.md)**.
 
+After a feature change, rebuild every platform this machine can:
+
+```bash
+bash scripts/build-all.sh
+# or: bash scripts/build-all.sh 0.1.0
+```
+
+That runs tests, then Docker / AppImage / macOS / Windows scripts as the host allows, then `scripts/checksums.sh`. Handoff `dist/secret-kit-<VERSION>-*`. Do not registry-push.
+
 Same engine, two ways to show the UI:
 
 - **Desktop window** (macOS): `python3 app.py` needs `requirements-desktop.txt`
