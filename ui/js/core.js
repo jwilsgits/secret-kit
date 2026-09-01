@@ -33,7 +33,10 @@ SK.setSeg = function (container, attr, value) {
 SK.bindSeg = function (id, attr, onPick) {
   SK.$(id).addEventListener("click", function (ev) {
     var btn = ev.target.closest("button");
-    if (btn) onPick(btn.getAttribute(attr));
+    if (btn) {
+      onPick(btn.getAttribute(attr));
+      if (SK.refreshHelp) SK.refreshHelp();
+    }
   });
 };
 

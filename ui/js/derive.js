@@ -50,6 +50,11 @@ SK.syncDeriveForm = function () {
     };
     SK.$("nostr-method-hint").textContent = hints[SK.derive.nostrMode] || hints.mnemonic;
   }
+  var hk = SK.$("help-derive-kind");
+  if (hk) hk.setAttribute("data-help", "derive.kind." + SK.derive.kind);
+  var hn = SK.$("help-nostr-mode");
+  if (hn) hn.setAttribute("data-help", "derive.nostr." + SK.derive.nostrMode);
+  if (SK.refreshHelp) SK.refreshHelp();
 };
 
 SK.kv = function (dl, rows) {

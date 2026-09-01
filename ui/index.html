@@ -11,7 +11,7 @@
     <header class="top">
       <div>
         <h1>Secret Kit</h1>
-        <p class="sub">Offline · nothing saved</p>
+        <p class="sub"><span class="label-row">Offline · nothing saved <button type="button" class="help-q" data-help="app.offline" aria-label="What is this">?</button></span></p>
       </div>
       <span class="pill" id="ready-pill">Starting…</span>
     </header>
@@ -25,7 +25,7 @@
 
     <section class="panel" id="panel-passwords">
       <label class="field">
-        <span>Generate</span>
+        <span class="label-row">Generate <button type="button" class="help-q" data-help="passwords.generate" data-help-from="#type" aria-label="What is this">?</button></span>
         <select id="type">
           <option value="pin">PIN</option>
           <option value="password">Random password</option>
@@ -61,14 +61,18 @@
         <label class="check">
           <input id="pin-lookalikes" type="checkbox">
           Avoid look-alikes (0 O 1 l I)
+          <button type="button" class="help-q" data-help="passwords.lookalikes" aria-label="What is this">?</button>
         </label>
       </section>
 
       <section class="card opts hidden" id="opts-password">
-        <div class="seg" id="pw-presets">
-          <button type="button" data-preset="simple" class="on">Simple · 16</button>
-          <button type="button" data-preset="strong">Strong · 20</button>
-          <button type="button" data-preset="paranoid">Paranoid · 32</button>
+        <div class="label-row">
+          <div class="seg" id="pw-presets">
+            <button type="button" data-preset="simple" class="on">Simple · 16</button>
+            <button type="button" data-preset="strong">Strong · 20</button>
+            <button type="button" data-preset="paranoid">Paranoid · 32</button>
+          </div>
+          <button type="button" class="help-q" data-help="passwords.preset" aria-label="What is this">?</button>
         </div>
         <details class="advanced">
           <summary>Advanced</summary>
@@ -86,6 +90,7 @@
         <label class="check">
           <input id="pw-lookalikes" type="checkbox">
           Avoid look-alikes (0 O 1 l I)
+          <button type="button" class="help-q" data-help="passwords.lookalikes" aria-label="What is this">?</button>
         </label>
       </section>
 
@@ -146,7 +151,7 @@
 
     <section class="panel hidden" id="panel-keys">
       <label class="field">
-        <span>Generate</span>
+        <span class="label-row">Generate <button type="button" class="help-q" data-help="keys.generate" data-help-from="#key-type" aria-label="What is this">?</button></span>
         <select id="key-type">
           <option value="seed">BIP-39 wallet seed</option>
           <option value="hex">Hex key</option>
@@ -156,7 +161,7 @@
       </label>
       <section class="card opts" id="opts-seed">
         <fieldset class="field">
-          <legend>BIP-39 English words</legend>
+          <legend class="label-row">BIP-39 English words <button type="button" class="help-q" data-help="keys.words" aria-label="What is this">?</button></legend>
           <div class="seg" id="seed-words">
             <button type="button" data-words="12" class="on">12</button>
             <button type="button" data-words="24">24</button>
@@ -196,6 +201,7 @@
         <div id="seed-gate" class="hidden">
           <p>This is a wallet seed. Anyone who sees it can spend the funds.</p>
           <button type="button" class="primary" id="seed-reveal">Reveal words</button>
+          <button type="button" class="help-q" data-help="keys.reveal" aria-label="What is this">?</button>
         </div>
         <div id="seed-body" class="hidden">
           <ol id="seed-words-list" class="words hidden"></ol>
@@ -203,7 +209,10 @@
           <div class="actions">
             <button type="button" id="seed-hide">Hide</button>
             <button type="button" id="seed-copy">Copy</button>
-            <button type="button" id="seed-send" class="hidden">Send to Derive</button>
+            <span id="seed-send-wrap" class="hidden label-row">
+              <button type="button" id="seed-send">Send to Derive</button>
+              <button type="button" class="help-q" data-help="keys.send" aria-label="What is this">?</button>
+            </span>
             <button type="button" id="seed-print">Print sheet</button>
             <button type="button" id="seed-clear">Clear</button>
           </div>
@@ -214,14 +223,14 @@
 
     <section class="panel hidden" id="panel-verify">
       <section class="card">
-        <h2 class="card-title">File checksum</h2>
+        <h2 class="card-title label-row">File checksum <button type="button" class="help-q" data-help="verify.checksum" aria-label="What is this">?</button></h2>
         <label class="field">
           <span>Vendor hash (hex). Algorithm is detected from length.</span>
           <input id="hash-expected" type="text" autocomplete="off" spellcheck="false" placeholder="SHA-256 is 64 hex characters">
         </label>
         <p class="hint" id="hash-detect">Paste a hash to detect MD5 / SHA-1 / SHA-256 / SHA-512</p>
         <label class="field hidden" id="hash-algo-wrap">
-          <span>Algorithm (length was not recognized)</span>
+          <span class="label-row">Algorithm (length was not recognized) <button type="button" class="help-q" data-help="verify.algo" data-help-from="#hash-algo" aria-label="What is this">?</button></span>
           <select id="hash-algo">
             <option value="auto">Autodetect</option>
             <option value="sha256">SHA-256</option>
@@ -244,7 +253,7 @@
       </section>
 
       <section class="card">
-        <h2 class="card-title">Compare two files</h2>
+        <h2 class="card-title label-row">Compare two files <button type="button" class="help-q" data-help="verify.compare" aria-label="What is this">?</button></h2>
         <p class="hint">Same algorithm for both. SHA-256 by default.</p>
         <div class="row">
           <button type="button" id="cmp-pick-a">File A…</button>
@@ -261,7 +270,7 @@
       </section>
 
       <section class="card">
-        <h2 class="card-title">Hash a folder</h2>
+        <h2 class="card-title label-row">Hash a folder <button type="button" class="help-q" data-help="verify.folder" aria-label="What is this">?</button></h2>
         <p class="hint">SHA-256 of every non-hidden file, streamed. Does not follow the same “vendor paste” flow.</p>
         <div class="row">
           <button type="button" id="folder-pick">Choose folder…</button>
@@ -274,7 +283,7 @@
       </section>
 
       <section class="card">
-        <h2 class="card-title">BIP-39 checksum</h2>
+        <h2 class="card-title label-row">BIP-39 checksum <button type="button" class="help-q" data-help="verify.bip39" aria-label="What is this">?</button></h2>
         <label class="field">
           <span>Paste or type 12 or 24 English words</span>
           <textarea id="mn-check" rows="3" autocomplete="off" spellcheck="false"></textarea>
@@ -290,14 +299,14 @@
     <section class="panel hidden" id="panel-derive">
       <section class="card opts">
         <fieldset class="field">
-          <legend>Derive</legend>
+          <legend class="label-row">Derive <button type="button" class="help-q" id="help-derive-kind" data-help="derive.kind.btc" aria-label="What is this">?</button></legend>
           <div class="seg" id="derive-kind">
             <button type="button" data-kind="btc" class="on">Bitcoin · BIP-84</button>
             <button type="button" data-kind="nostr">Nostr</button>
           </div>
         </fieldset>
         <fieldset class="field hidden" id="nostr-mode-wrap">
-          <legend>Nostr source</legend>
+          <legend class="label-row">Nostr source <button type="button" class="help-q" id="help-nostr-mode" data-help="derive.nostr.mnemonic" aria-label="What is this">?</button></legend>
           <div class="seg" id="nostr-mode">
             <button type="button" data-mode="mnemonic" class="on">From mnemonic · NIP-06</button>
             <button type="button" data-mode="fresh">Fresh pair</button>
@@ -317,7 +326,7 @@
         </div>
         <div class="row" id="btc-opts">
           <fieldset class="field grow">
-            <legend>Receive addresses</legend>
+            <legend class="label-row">Receive addresses <button type="button" class="help-q" data-help="derive.receive" aria-label="What is this">?</button></legend>
             <div class="seg" id="btc-recv">
               <button type="button" data-n="1">1</button>
               <button type="button" data-n="5" class="on">5</button>
@@ -325,7 +334,7 @@
             </div>
           </fieldset>
           <fieldset class="field grow">
-            <legend>Change addresses</legend>
+            <legend class="label-row">Change addresses <button type="button" class="help-q" data-help="derive.change" aria-label="What is this">?</button></legend>
             <div class="seg" id="btc-chg">
               <button type="button" data-n="0">0</button>
               <button type="button" data-n="5" class="on">5</button>
@@ -336,6 +345,7 @@
         <label class="check" id="taproot-wrap">
           <input id="btc-taproot" type="checkbox">
           Also derive BIP-86 taproot (bc1p…)
+          <button type="button" class="help-q" data-help="derive.taproot" aria-label="What is this">?</button>
         </label>
         <div id="derive-words-wrap">
           <label class="field">
@@ -343,7 +353,7 @@
             <textarea id="derive-mnemonic" rows="3" autocomplete="off" spellcheck="false"></textarea>
           </label>
           <label class="field">
-            <span>Optional BIP-39 passphrase</span>
+            <span class="label-row">Optional BIP-39 passphrase <button type="button" class="help-q" data-help="derive.passphrase" aria-label="What is this">?</button></span>
             <div class="row">
               <input id="derive-pass" type="password" autocomplete="off" spellcheck="false" class="grow">
               <button type="button" class="ghost" id="derive-pass-toggle">Show</button>
@@ -376,10 +386,12 @@
     </section>
   </div>
 
+  <div id="help-pop" class="hidden" role="tooltip"><p class="help-what"></p><p class="help-why"></p></div>
+
   <template id="entropy-template">
     <section class="card entropy-card">
       <div class="entropy-head">
-        <span>Extra entropy</span>
+        <span class="label-row">Extra entropy <button type="button" class="help-q" data-help="entropy.extra" aria-label="What is this">?</button></span>
         <span class="hint mouse-status">Mouse pad unused — OS CSPRNG is enough</span>
       </div>
       <div class="mouse-pad" tabindex="0">Move the mouse here to mix extra timing into the next generate</div>
@@ -411,6 +423,7 @@
   <script src="js/api.js"></script>
   <script src="js/entropy.js"></script>
   <script src="js/clipboard.js"></script>
+  <script src="js/help.js"></script>
   <script src="js/passwords.js"></script>
   <script src="js/keys.js"></script>
   <script src="js/verify.js"></script>

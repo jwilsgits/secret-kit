@@ -29,6 +29,7 @@ SK.switchKeyType = function (type) {
   SK.show(SK.$("opts-seed"), type === "seed");
   SK.show(SK.$("opts-hex"), type === "hex");
   SK.show(SK.$("opts-codes"), type === "codes");
+  if (SK.refreshHelp) SK.refreshHelp();
 };
 
 SK.initKeys = function () {
@@ -80,7 +81,7 @@ SK.initKeys = function () {
       SK.show(SK.$("seed-body"), SK.keys.keyType !== "seed");
       SK.show(SK.$("seed-words-list"), SK.keys.keyType === "seed");
       SK.show(SK.$("keys-result-text"), SK.keys.keyType !== "seed");
-      SK.show(SK.$("seed-send"), SK.keys.keyType === "seed");
+      SK.show(SK.$("seed-send-wrap"), SK.keys.keyType === "seed");
     });
   });
   SK.$("seed-reveal").addEventListener("click", function () {
