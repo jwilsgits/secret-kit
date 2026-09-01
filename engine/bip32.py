@@ -32,6 +32,26 @@ def _b58encode(raw):
     return ("1" * pad) + (out or "1")
 
 
+def _b58decode(text):
+    n = 0
+    for ch in text:
+        idx = B58.find(ch)
+        if idx < 0:
+            raise SecpError("invalid base58")
+        n = n * 58 + idx
+    pad = 0
+    for ch in text:
+        if ch == "1":
+            pad += 1
+        else:
+            break
+    if n == 0:
+        raw = b""
+    else:
+        raw = n.to_bytes((n.bit_length() + 7) // 8, "big")
+    return (b"\x00" * pad) + raw
+
+
 def base58check(payload):
     checksum = hashlib.sha256(hashlib.sha256(payload).digest()).digest()[:4]
     return _b58encode(payload + checksum)
@@ -45,6 +65,34 @@ class Node(object):
         self.depth = depth
         self.fingerprint = fingerprint
         self.index = index
+
+    @classmethod
+    def from_extended(cls, text):
+        raw = _b58decode((text or "").strip())
+        if len(raw) < 82:
+            raise SecpError("invalid extended key")
+        payload, check = raw[:-4], raw[-4:]
+        if hashlib.sha256(hashlib.sha256(payload).digest()).digest()[:4] != check:
+            raise SecpError("invalid extended key checksum")
+        ver = payload[0:4]
+        depth = payload[4]
+        fingerprint = payload[5:9]
+        index = struct.unpack(">I", payload[9:13])[0]
+        chain = payload[13:45]
+        key = payload[45:78]
+        if ver == XPRV:
+            if key[0] != 0:
+                raise SecpError("invalid xprv")
+            priv = key[1:]
+            if not is_valid_priv(priv):
+                raise SecpError("invalid master key")
+            pub = priv_to_pub(priv)
+        elif ver == XPUB:
+            priv = None
+            pub = key
+        else:
+            raise SecpError("unsupported extended key version")
+        return cls(priv, pub, chain, depth, fingerprint, index)
 
     @classmethod
     def from_seed(cls, seed):
