@@ -39,6 +39,14 @@ def _chain(root, account_path, branch, count, make_addr):
     return rows
 
 
+def _fingerprint(root):
+    return hash160(root.pub)[:4].hex()
+
+
+def _descriptor(script, fpr, origin, xpub, branch):
+    return "%s([%s/%s]%s/%d/*)" % (script, fpr, origin, xpub, branch)
+
+
 def derive_btc(mnemonic, passphrase="", receive=5, change=5, taproot=False):
     phrase = " ".join((mnemonic or "").split())
     if not validate_mnemonic(phrase):
@@ -50,6 +58,8 @@ def derive_btc(mnemonic, passphrase="", receive=5, change=5, taproot=False):
     seed = mnemonic_to_seed(phrase, passphrase or "")
     root = Node.from_seed(seed)
     account = root.derive(BTC_ACCOUNT)
+    fpr = _fingerprint(root)
+    account_xpub = account.extended(False, XPUB)
     recv = _chain(root, BTC_ACCOUNT, 0, receive, p2wpkh_address)
     chg = _chain(root, BTC_ACCOUNT, 1, change, p2wpkh_address) if change else []
     out = {
@@ -61,18 +71,25 @@ def derive_btc(mnemonic, passphrase="", receive=5, change=5, taproot=False):
         "pubkey": root.derive(recv[0]["path"]).pub.hex(),
         "receive": recv,
         "change": chg,
+        "descriptor_receive": _descriptor("wpkh", fpr, "84h/0h/0h", account_xpub, 0),
+        "descriptor_change": _descriptor("wpkh", fpr, "84h/0h/0h", account_xpub, 1) if change else None,
         "taproot": None,
     }
     if taproot:
         t_account = root.derive(TAP_ACCOUNT)
         t_recv = _chain(root, TAP_ACCOUNT, 0, receive, p2tr_address)
         t_chg = _chain(root, TAP_ACCOUNT, 1, change, p2tr_address) if change else []
+        t_xpub = t_account.extended(False, XPUB)
         out["taproot"] = {
             "path_account": TAP_ACCOUNT,
-            "xpub": t_account.extended(False, XPUB),
+            "xpub": t_xpub,
             "xprv": t_account.extended(True, XPRV),
             "address": t_recv[0]["address"],
             "receive": t_recv,
             "change": t_chg,
+            "descriptor_receive": _descriptor("tr", fpr, "86h/0h/0h", t_xpub, 0),
+            "descriptor_change": (
+                _descriptor("tr", fpr, "86h/0h/0h", t_xpub, 1) if change else None
+            ),
         }
     return out
