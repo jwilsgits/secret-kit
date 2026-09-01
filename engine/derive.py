@@ -1,3 +1,4 @@
+from engine.bip85 import derive_bip85_mnemonic
 from engine.btc import derive_btc
 from engine.charset import CharsetError
 from engine.entropy import ByteSource, EntropyError, EntropyPool
@@ -11,6 +12,15 @@ def _btc(spec, pool):
         receive=int(spec.get("receive") or 5),
         change=int(spec.get("change") if spec.get("change") is not None else 5),
         taproot=bool(spec.get("taproot")),
+    )
+
+
+def _bip85(spec, pool):
+    return derive_bip85_mnemonic(
+        spec.get("mnemonic") or "",
+        spec.get("passphrase") or "",
+        spec.get("words") or 12,
+        spec.get("index") if spec.get("index") is not None else 0,
     )
 
 
@@ -52,6 +62,7 @@ def _nostr(spec, pool):
 
 HANDLERS = {
     "btc": _btc,
+    "bip85": _bip85,
     "nostr": _nostr,
 }
 

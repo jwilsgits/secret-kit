@@ -3,6 +3,7 @@ import unittest
 from engine.bip32 import Node
 from engine.bip85 import derive_bip85_mnemonic, mnemonic_from_node
 from engine.charset import CharsetError
+from engine.derive import derive
 
 VECTOR_XPRV = (
     "xprv9s21ZrQH143K2LBWUUQRFXhucrQqBpKdRRxNVq2zBqsx8HVqFk2uYo8kmbaLLHRdqtQpUm98u"
@@ -44,3 +45,12 @@ class Bip85MnemonicTests(unittest.TestCase):
         self.assertNotEqual(a["mnemonic"], b["mnemonic"])
         self.assertEqual(a["path"], "m/83696968'/39'/0'/12'/0'")
         self.assertEqual(b["words"], 24)
+
+
+class Bip85DispatchTests(unittest.TestCase):
+    def test_derive_kind(self):
+        phrase = "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about"
+        out = derive({"kind": "bip85", "mnemonic": phrase, "words": 12, "index": 0})
+        self.assertTrue(out["ok"], out)
+        self.assertEqual(out["value"]["language"], "english")
+        self.assertIn("mnemonic", out["value"])

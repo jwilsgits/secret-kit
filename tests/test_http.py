@@ -59,3 +59,19 @@ class HttpApiTests(unittest.TestCase):
         with self.assertRaises(HTTPError) as ctx:
             urlopen(req)
         self.assertEqual(ctx.exception.code, 404)
+
+    def test_derive_bip85(self):
+        req = Request(
+            "http://127.0.0.1:18765/api/derive",
+            data=json.dumps([{
+                "kind": "bip85",
+                "mnemonic": "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about",
+                "words": 12,
+                "index": 0,
+            }]).encode(),
+            headers={"Content-Type": "application/json"},
+            method="POST",
+        )
+        body = json.loads(urlopen(req).read().decode("utf-8"))
+        self.assertTrue(body["ok"], body)
+        self.assertEqual(body["value"]["path"], "m/83696968'/39'/0'/12'/0'")
