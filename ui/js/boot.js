@@ -3,6 +3,7 @@ SK.initPasswords();
 SK.initKeys();
 SK.initVerify();
 SK.initDerive();
+SK.initHelp();
 
 SK.$("tabs").addEventListener("click", function (ev) {
   var btn = ev.target.closest("button");

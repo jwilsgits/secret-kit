@@ -63,6 +63,7 @@ SK.initVerify = function () {
       SK.$("hash-detect").textContent = "Paste a hash to detect MD5 / SHA-1 / SHA-256 / SHA-512";
       SK.show(SK.$("hash-algo-wrap"), false);
     }
+    if (SK.refreshHelp) SK.refreshHelp();
   }
 
   function pickInto(setter, label) {

@@ -7,7 +7,7 @@ Four tabs:
 - **Passwords** — PIN, random password, memorable BIP-39-word password, Diceware phrase
 - **Keys** — BIP-39 12/24, hex key, UUID v4, backup-code list. Reveal / copy / print, or **Send to Derive** (moves a seed, then clears this tab). BIP-39 passphrases are entered on Derive only.
 - **Verify** — vendor file checksum (autodetect), compare two files, hash a folder, BIP-39 phrase check
-- **Derive** — Bitcoin BIP-84 address lists (optional BIP-86 taproot); Nostr fresh pair or NIP-06. Public first; private behind Reveal. Copy-per-field. **Clear words only** does not wipe the public result.
+- **Derive** — Bitcoin BIP-84 address lists (optional BIP-86 taproot) with BIP-380 watch descriptors; BIP-85 English child mnemonics; Nostr fresh pair or NIP-06. Public first; private behind Reveal. **?** explains the selected option. Copy-per-field. **Clear words only** does not wipe the public result.
 
 Nothing is saved. Leaving a tab or clicking Clear wipes that tab. After Derive, the mnemonic field is emptied. There is no in-app vault.
 

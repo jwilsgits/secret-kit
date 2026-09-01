@@ -3,6 +3,8 @@ SK.derive = {
   nostrMode: "mnemonic",
   btcRecv: 5,
   btcChg: 5,
+  bip85Words: 12,
+  bip85Index: 0,
   last: null,
   lastPublic: "",
 };
@@ -35,11 +37,13 @@ SK.wipes.derive = SK.wipeDerive;
 
 SK.syncDeriveForm = function () {
   var nostr = SK.derive.kind === "nostr";
+  var bip85 = SK.derive.kind === "bip85";
   var fresh = nostr && SK.derive.nostrMode === "fresh";
   var inspect = nostr && SK.derive.nostrMode === "inspect";
   SK.show(SK.$("nostr-mode-wrap"), nostr);
-  SK.show(SK.$("btc-opts"), !nostr);
-  SK.show(SK.$("taproot-wrap"), !nostr);
+  SK.show(SK.$("bip85-opts"), bip85);
+  SK.show(SK.$("btc-opts"), !nostr && !bip85);
+  SK.show(SK.$("taproot-wrap"), !nostr && !bip85);
   SK.show(SK.$("derive-words-wrap"), !fresh && !inspect);
   SK.show(SK.$("inspect-wrap"), inspect);
   if (nostr) {
@@ -50,6 +54,11 @@ SK.syncDeriveForm = function () {
     };
     SK.$("nostr-method-hint").textContent = hints[SK.derive.nostrMode] || hints.mnemonic;
   }
+  var hk = SK.$("help-derive-kind");
+  if (hk) hk.setAttribute("data-help", "derive.kind." + SK.derive.kind);
+  var hn = SK.$("help-nostr-mode");
+  if (hn) hn.setAttribute("data-help", "derive.nostr." + SK.derive.nostrMode);
+  if (SK.refreshHelp) SK.refreshHelp();
 };
 
 SK.kv = function (dl, rows) {
@@ -59,6 +68,15 @@ SK.kv = function (dl, rows) {
     var dt = document.createElement("dt");
     var dd = document.createElement("dd");
     dt.textContent = row[0];
+    if (row[3]) {
+      var q = document.createElement("button");
+      q.type = "button";
+      q.className = "help-q";
+      q.setAttribute("data-help", row[3]);
+      q.setAttribute("aria-label", "What is this");
+      q.textContent = "?";
+      dt.appendChild(q);
+    }
     dd.textContent = row[1];
     wrap.appendChild(dt);
     wrap.appendChild(dd);
@@ -86,11 +104,22 @@ SK.addrTable = function (title, rows) {
 SK.renderBtc = function (value) {
   SK.$("derive-label").textContent = "Bitcoin · BIP-84";
   SK.$("derive-meta").textContent = value.path_address;
-  SK.kv(SK.$("derive-public"), [
+  var pubRows = [
     ["First", value.address, true],
     ["zpub", value.zpub, true],
     ["Path", value.path_account, false],
-  ]);
+    ["Receive descriptor", value.descriptor_receive, true, "derive.descriptor"],
+  ];
+  if (value.descriptor_change) {
+    pubRows.push(["Change descriptor", value.descriptor_change, true, "derive.descriptor"]);
+  }
+  if (value.taproot) {
+    pubRows.push(["Taproot receive descriptor", value.taproot.descriptor_receive, true, "derive.descriptor"]);
+    if (value.taproot.descriptor_change) {
+      pubRows.push(["Taproot change descriptor", value.taproot.descriptor_change, true, "derive.descriptor"]);
+    }
+  }
+  SK.kv(SK.$("derive-public"), pubRows);
   var extra = SK.addrTable("Receive", value.receive) + SK.addrTable("Change", value.change);
   if (value.taproot) {
     extra += "<p class=\"hint\">BIP-86 taproot · " + value.taproot.path_account + "</p>";
@@ -109,6 +138,12 @@ SK.renderBtc = function (value) {
   if (value.taproot) privRows.push(["xprv (86')", value.taproot.xprv, true]);
   SK.kv(SK.$("derive-private"), privRows);
   var lines = ["address " + value.address, "zpub " + value.zpub, value.path_account];
+  lines.push(value.descriptor_receive);
+  if (value.descriptor_change) lines.push(value.descriptor_change);
+  if (value.taproot) {
+    lines.push(value.taproot.descriptor_receive);
+    if (value.taproot.descriptor_change) lines.push(value.taproot.descriptor_change);
+  }
   value.receive.forEach(function (row) {
     lines.push("recv " + row.index + " " + row.address);
   });
@@ -122,6 +157,21 @@ SK.renderBtc = function (value) {
     });
   }
   SK.derive.lastPublic = lines.join("\n");
+  SK.show(SK.$("derive-priv-gate"), true);
+  SK.show(SK.$("derive-private"), false);
+};
+
+SK.renderBip85 = function (value) {
+  SK.$("derive-label").textContent = "BIP-85";
+  SK.$("derive-meta").textContent = value.path;
+  SK.kv(SK.$("derive-public"), [
+    ["Path", value.path, true],
+    ["Index", String(value.index), false],
+    ["Child words", String(value.words), false],
+    ["Warning", value.warning, false],
+  ]);
+  SK.kv(SK.$("derive-private"), [["Child mnemonic", value.mnemonic, true]]);
+  SK.derive.lastPublic = ["path " + value.path, "index " + value.index, "words " + value.words, value.warning].join("\n");
   SK.show(SK.$("derive-priv-gate"), true);
   SK.show(SK.$("derive-private"), false);
 };
@@ -152,6 +202,10 @@ SK.initDerive = function () {
     SK.derive.btcChg = v;
     SK.setSeg(SK.$("btc-chg"), "data-n", v);
   });
+  SK.bindSeg("bip85-words", "data-words", function (v) {
+    SK.derive.bip85Words = v;
+    SK.setSeg(SK.$("bip85-words"), "data-words", v);
+  });
   SK.bindSeg("derive-kind", "data-kind", function (v) {
     SK.derive.kind = v;
     SK.setSeg(SK.$("derive-kind"), "data-kind", v);
@@ -178,6 +232,16 @@ SK.initDerive = function () {
       change: Number(SK.derive.btcChg),
       taproot: SK.$("btc-taproot").checked,
     };
+    if (SK.derive.kind === "bip85") {
+      var idx = Number(SK.$("bip85-index").value);
+      if (!Number.isInteger(idx) || idx < 0 || idx > 999) {
+        SK.fail("error-derive", "BIP-85 index must be 0–999");
+        return;
+      }
+      SK.derive.bip85Index = idx;
+      spec.words = Number(SK.derive.bip85Words);
+      spec.index = idx;
+    }
     if (SK.derive.kind === "nostr" && SK.derive.nostrMode === "inspect") {
       spec.nsec = SK.$("inspect-nsec").value;
       spec.npub = SK.$("inspect-npub").value;
@@ -196,7 +260,8 @@ SK.initDerive = function () {
       SK.wipeDeriveForm();
       SK.derive.last = result.value;
       SK.show(SK.$("result-derive"), true);
-      if (SK.derive.kind === "btc") SK.renderBtc(result.value);
+      if (SK.derive.kind === "bip85") SK.renderBip85(result.value);
+      else if (SK.derive.kind === "btc") SK.renderBtc(result.value);
       else SK.renderNostr(result.value);
     }).catch(function (err) {
       SK.fail("error-derive", String(err));

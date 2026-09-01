@@ -26,6 +26,7 @@ SK.switchType = function (type) {
   SK.show(SK.$("opts-password"), type === "password");
   SK.show(SK.$("opts-memorable"), type === "memorable");
   SK.show(SK.$("opts-diceware"), type === "diceware");
+  if (SK.refreshHelp) SK.refreshHelp();
 };
 
 SK.buildPwSpec = function () {

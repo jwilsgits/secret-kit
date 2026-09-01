@@ -60,3 +60,21 @@ class Bip84Tests(unittest.TestCase):
     def test_rejects_bad_mnemonic(self):
         with self.assertRaises(Exception):
             derive_btc("not a real seed phrase at all extra", "")
+
+
+class DescriptorTests(unittest.TestCase):
+    def test_wpkh_receive_abandon(self):
+        out = derive_btc(ABANDON, "", receive=1, change=0)
+        desc = out["descriptor_receive"]
+        self.assertTrue(desc.startswith("wpkh(["))
+        self.assertIn("/84h/0h/0h]", desc)
+        self.assertTrue(desc.endswith("/0/*)"))
+        self.assertNotIn("zpub", desc)
+        self.assertIsNone(out["descriptor_change"])
+        self.assertEqual(out["address"], "bc1qcr8te4kr609gcawutmrza0j4xv80jy8z306fyu")
+
+    def test_tr_when_taproot(self):
+        out = derive_btc(ABANDON, "", receive=1, change=1, taproot=True)
+        self.assertTrue(out["taproot"]["descriptor_receive"].startswith("tr(["))
+        self.assertIn("/86h/0h/0h]", out["taproot"]["descriptor_receive"])
+        self.assertTrue(out["descriptor_change"].endswith("/1/*)"))
