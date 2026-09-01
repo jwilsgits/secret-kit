@@ -104,11 +104,7 @@ def _verify_result(digest, expected, algo, detected, auto):
     }
 
 
-def compare_files(path_a, path_b, algo="sha256"):
-    if algo not in ALGOS:
-        raise CharsetError("unknown hash algorithm: %s" % algo)
-    digest_a = hash_file(path_a, algo)
-    digest_b = hash_file(path_b, algo)
+def _compare_result(digest_a, digest_b, algo):
     return {
         "ok": True,
         "match": hmac.compare_digest(digest_a, digest_b),
@@ -117,6 +113,18 @@ def compare_files(path_a, path_b, algo="sha256"):
         "digest_a": digest_a,
         "digest_b": digest_b,
     }
+
+
+def compare_files(path_a, path_b, algo="sha256"):
+    if algo not in ALGOS:
+        raise CharsetError("unknown hash algorithm: %s" % algo)
+    return _compare_result(hash_file(path_a, algo), hash_file(path_b, algo), algo)
+
+
+def compare_blobs(data_a, data_b, algo="sha256"):
+    if algo not in ALGOS:
+        raise CharsetError("unknown hash algorithm: %s" % algo)
+    return _compare_result(hash_blob(data_a, algo), hash_blob(data_b, algo), algo)
 
 
 def hash_tree(root, algo="sha256"):

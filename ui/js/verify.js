@@ -3,6 +3,8 @@ SK.verify = {
   uploaded: false,
   cmpA: "",
   cmpB: "",
+  cmpAContent: null,
+  cmpBContent: null,
   folderPath: "",
   lastHashDigest: "",
   lastFolderText: "",
@@ -19,6 +21,8 @@ SK.wipeVerify = function () {
   SK._upload = null;
   SK.verify.cmpA = "";
   SK.verify.cmpB = "";
+  SK.verify.cmpAContent = null;
+  SK.verify.cmpBContent = null;
   SK.verify.folderPath = "";
   SK.verify.lastHashDigest = "";
   SK.verify.lastFolderText = "";
@@ -42,6 +46,10 @@ SK.wipeVerify = function () {
 SK.wipes.verify = SK.wipeVerify;
 
 SK.initVerify = function () {
+  if (SK.isHttpMode()) {
+    SK.show(SK.$("folder-card"), false);
+  }
+
   function updateHashDetect() {
     var hex = (SK.$("hash-expected").value || "").replace(/[\s:]/g, "");
     if (/^0x/i.test(hex)) hex = hex.slice(2);
@@ -70,7 +78,7 @@ SK.initVerify = function () {
     if (!SK.state.ready) return;
     SK.api.pick_file().then(function (res) {
       if (res && res.path) {
-        setter(res.path);
+        setter(res);
         SK.$(label).textContent = SK.basename(res.path);
       }
     });
@@ -83,6 +91,7 @@ SK.initVerify = function () {
       if (res && res.path) {
         SK.verify.hashPath = res.path;
         SK.verify.uploaded = !!res.uploaded;
+        SK._upload = res.uploaded ? { name: res.path, content: res.content } : null;
         SK.$("hash-file-label").textContent = SK.basename(res.path);
       }
     });
@@ -143,19 +152,32 @@ SK.initVerify = function () {
   });
   SK.$("verify-clear").addEventListener("click", SK.wipeVerify);
   SK.$("cmp-pick-a").addEventListener("click", function () {
-    pickInto(function (p) { SK.verify.cmpA = p; }, "cmp-a-label");
+    pickInto(function (res) {
+      SK.verify.cmpA = res.path;
+      SK.verify.cmpAContent = res.uploaded ? res.content : null;
+    }, "cmp-a-label");
   });
   SK.$("cmp-pick-b").addEventListener("click", function () {
-    pickInto(function (p) { SK.verify.cmpB = p; }, "cmp-b-label");
+    pickInto(function (res) {
+      SK.verify.cmpB = res.path;
+      SK.verify.cmpBContent = res.uploaded ? res.content : null;
+    }, "cmp-b-label");
   });
   SK.$("cmp-run").addEventListener("click", function () {
     SK.show(SK.$("error-cmp"), false);
     if (!SK.verify.cmpA || !SK.verify.cmpB) return SK.fail("error-cmp", "Choose both files.");
-    SK.api.compare_files({
-      path_a: SK.verify.cmpA,
-      path_b: SK.verify.cmpB,
-      algo: "sha256",
-    }).then(function (result) {
+    var cmpCall = (SK.verify.cmpAContent != null && SK.verify.cmpBContent != null)
+      ? SK.api.compare_bytes({
+          content_a: SK.verify.cmpAContent,
+          content_b: SK.verify.cmpBContent,
+          algo: "sha256",
+        })
+      : SK.api.compare_files({
+          path_a: SK.verify.cmpA,
+          path_b: SK.verify.cmpB,
+          algo: "sha256",
+        });
+    cmpCall.then(function (result) {
       if (!result || !result.ok) return SK.fail("error-cmp", (result && result.error) || "Compare failed.");
       var el = SK.$("cmp-verdict");
       el.textContent = result.match ? "Files match" : "Files differ";
@@ -197,7 +219,17 @@ SK.initVerify = function () {
   });
   SK.bindDrop(SK.$("hash-drop"), null, function (path) {
     SK.verify.hashPath = path;
+    SK.verify.uploaded = false;
+    SK._upload = null;
     SK.$("hash-file-label").textContent = SK.basename(path);
+  }, function (file) {
+    SK.readBrowserFile(file).then(function (res) {
+      if (!res || !res.path) return;
+      SK.verify.hashPath = res.path;
+      SK.verify.uploaded = true;
+      SK._upload = { name: res.path, content: res.content };
+      SK.$("hash-file-label").textContent = SK.basename(res.path);
+    });
   });
   SK.bindDrop(SK.$("mn-drop"), function (text) {
     SK.$("mn-check").value = text.trim();

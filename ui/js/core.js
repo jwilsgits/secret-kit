@@ -51,7 +51,7 @@ SK.basename = function (path) {
   return parts[parts.length - 1] || path;
 };
 
-SK.bindDrop = function (el, onText, onPath) {
+SK.bindDrop = function (el, onText, onPath, onFile) {
   el.addEventListener("dragover", function (ev) {
     ev.preventDefault();
     el.classList.add("over");
@@ -66,6 +66,10 @@ SK.bindDrop = function (el, onText, onPath) {
     if (!file) return;
     if (file.path && onPath) {
       onPath(file.path);
+      return;
+    }
+    if (onFile && !file.path) {
+      onFile(file);
       return;
     }
     if (onText) {

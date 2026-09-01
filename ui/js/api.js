@@ -21,6 +21,7 @@ SK.api = {
   hash_bytes: function (spec) { return SK.apiCall("hash_bytes", [spec]); },
   derive: function (spec) { return SK.apiCall("derive", [spec]); },
   compare_files: function (spec) { return SK.apiCall("compare_files", [spec]); },
+  compare_bytes: function (spec) { return SK.apiCall("compare_bytes", [spec]); },
   hash_folder: function (spec) { return SK.apiCall("hash_folder", [spec]); },
   pick_folder: function () { return SK.apiCall("pick_folder", []); },
   pick_file: function () {
@@ -31,31 +32,37 @@ SK.api = {
   },
 };
 
+SK.readBrowserFile = function (file) {
+  return new Promise(function (resolve) {
+    if (!file) {
+      resolve({ ok: true, path: null });
+      return;
+    }
+    var reader = new FileReader();
+    reader.onload = function () {
+      var bytes = new Uint8Array(reader.result);
+      var bin = "";
+      for (var i = 0; i < bytes.length; i++) bin += String.fromCharCode(bytes[i]);
+      resolve({
+        ok: true,
+        path: file.name,
+        uploaded: true,
+        content: btoa(bin),
+      });
+    };
+    reader.onerror = function () {
+      resolve({ ok: false, path: null, error: "could not read file" });
+    };
+    reader.readAsArrayBuffer(file);
+  });
+};
+
 SK.pickBrowserFile = function () {
   return new Promise(function (resolve) {
     var input = document.createElement("input");
     input.type = "file";
     input.onchange = function () {
-      var file = input.files && input.files[0];
-      if (!file) {
-        resolve({ ok: true, path: null });
-        return;
-      }
-      var reader = new FileReader();
-      reader.onload = function () {
-        var bytes = new Uint8Array(reader.result);
-        var bin = "";
-        for (var i = 0; i < bytes.length; i++) bin += String.fromCharCode(bytes[i]);
-        SK._upload = {
-          name: file.name,
-          content: btoa(bin),
-        };
-        resolve({ ok: true, path: file.name, uploaded: true });
-      };
-      reader.onerror = function () {
-        resolve({ ok: false, path: null, error: "could not read file" });
-      };
-      reader.readAsArrayBuffer(file);
+      SK.readBrowserFile(input.files && input.files[0]).then(resolve);
     };
     input.click();
   });
