@@ -1,4 +1,7 @@
+import http.client
 import json
+import os
+import tempfile
 import threading
 import unittest
 from urllib.error import HTTPError
@@ -6,6 +9,8 @@ from urllib.request import Request, urlopen
 
 from app import Api, main
 from engine.http_server import serve
+
+PIN = [{"type": "pin", "pin": {"charset": "numeric", "length": 6}}]
 
 
 class HttpBindTests(unittest.TestCase):
@@ -20,7 +25,7 @@ class HttpApiTests(unittest.TestCase):
 
         cls.httpd_thread = threading.Thread(
             target=serve,
-            args=(Api(), appmod.ROOT / "ui", "127.0.0.1", 18765),
+            args=(Api(http_mode=True), appmod.ROOT / "ui", "127.0.0.1", 18765),
             daemon=True,
         )
         cls.httpd_thread.start()
@@ -75,3 +80,118 @@ class HttpApiTests(unittest.TestCase):
         body = json.loads(urlopen(req).read().decode("utf-8"))
         self.assertTrue(body["ok"], body)
         self.assertEqual(body["value"]["path"], "m/83696968'/39'/0'/12'/0'")
+
+    def test_rejects_non_loopback_host(self):
+        req = Request(
+            "http://127.0.0.1:18765/",
+            headers={"Host": "example.com"},
+            method="GET",
+        )
+        with self.assertRaises(HTTPError) as ctx:
+            urlopen(req)
+        self.assertEqual(ctx.exception.code, 403)
+
+    def test_rejects_foreign_origin(self):
+        req = Request(
+            "http://127.0.0.1:18765/api/generate",
+            data=json.dumps(PIN).encode(),
+            headers={
+                "Content-Type": "application/json",
+                "Origin": "http://evil.example",
+            },
+            method="POST",
+        )
+        with self.assertRaises(HTTPError) as ctx:
+            urlopen(req)
+        self.assertEqual(ctx.exception.code, 403)
+
+    def test_allows_loopback_origin(self):
+        req = Request(
+            "http://127.0.0.1:18765/api/generate",
+            data=json.dumps(PIN).encode(),
+            headers={
+                "Content-Type": "application/json",
+                "Origin": "http://127.0.0.1:18765",
+            },
+            method="POST",
+        )
+        body = json.loads(urlopen(req).read().decode("utf-8"))
+        self.assertTrue(body["ok"], body)
+
+    def test_rejects_bad_content_length(self):
+        conn = http.client.HTTPConnection("127.0.0.1", 18765, timeout=2)
+        try:
+            conn.putrequest("POST", "/api/generate")
+            conn.putheader("Content-Type", "application/json")
+            conn.putheader("Content-Length", "nope")
+            conn.endheaders()
+            conn.send(b"[]")
+            status = conn.getresponse().status
+        finally:
+            conn.close()
+        self.assertEqual(status, 400)
+
+    def test_rejects_negative_content_length(self):
+        conn = http.client.HTTPConnection("127.0.0.1", 18765, timeout=2)
+        try:
+            conn.putrequest("POST", "/api/generate")
+            conn.putheader("Content-Type", "application/json")
+            conn.putheader("Content-Length", "-1")
+            conn.endheaders()
+            status = conn.getresponse().status
+        finally:
+            conn.close()
+        self.assertEqual(status, 400)
+
+    def test_hash_file_refused_in_http_mode(self):
+        handle, path = tempfile.mkstemp()
+        os.write(handle, b"secret-kit-http-fixture\n")
+        os.close(handle)
+        try:
+            req = Request(
+                "http://127.0.0.1:18765/api/hash_file",
+                data=json.dumps([{
+                    "path": path,
+                    "expected": "0" * 64,
+                    "algo": "sha256",
+                }]).encode(),
+                headers={"Content-Type": "application/json"},
+                method="POST",
+            )
+            body = json.loads(urlopen(req).read().decode("utf-8"))
+        finally:
+            os.remove(path)
+        self.assertFalse(body["ok"])
+        self.assertNotIn("digest", body)
+
+    def test_compare_bytes(self):
+        import base64
+
+        same = base64.b64encode(b"abc").decode("ascii")
+        other = base64.b64encode(b"xyz").decode("ascii")
+        req = Request(
+            "http://127.0.0.1:18765/api/compare_bytes",
+            data=json.dumps([{
+                "content_a": same,
+                "content_b": same,
+                "algo": "sha256",
+            }]).encode(),
+            headers={"Content-Type": "application/json"},
+            method="POST",
+        )
+        match = json.loads(urlopen(req).read().decode("utf-8"))
+        self.assertTrue(match["ok"], match)
+        self.assertTrue(match["match"])
+        req = Request(
+            "http://127.0.0.1:18765/api/compare_bytes",
+            data=json.dumps([{
+                "content_a": same,
+                "content_b": other,
+                "algo": "sha256",
+            }]).encode(),
+            headers={"Content-Type": "application/json"},
+            method="POST",
+        )
+        diff = json.loads(urlopen(req).read().decode("utf-8"))
+        self.assertTrue(diff["ok"], diff)
+        self.assertFalse(diff["match"])

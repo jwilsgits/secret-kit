@@ -19,6 +19,7 @@ API_METHODS = frozenset((
     "hash_folder",
     "derive",
     "hash_bytes",
+    "compare_bytes",
 ))
 MAX_BODY = 32 * 1024 * 1024
 
@@ -26,16 +27,37 @@ MAX_BODY = 32 * 1024 * 1024
 class KitHandler(BaseHTTPRequestHandler):
     api = None
     ui_root = None
+    bind_loopback = True
 
     def log_message(self, fmt, *args):
         return
 
     def _host_ok(self):
         host = (self.headers.get("Host") or "").split(":")[0].strip().lower()
+        if host.startswith("[") and host.endswith("]"):
+            host = host[1:-1]
         return host in LOOPBACK or host == ""
 
+    def _peer_ok(self):
+        if not self.bind_loopback:
+            return True
+        peer = (self.client_address[0] or "").strip().lower()
+        if peer.startswith("::ffff:"):
+            peer = peer[7:]
+        return peer in LOOPBACK
+
+    def _origin_ok(self):
+        origin = (self.headers.get("Origin") or "").strip()
+        if not origin:
+            return True
+        host = (urlparse(origin).hostname or "").strip().lower()
+        return host in LOOPBACK
+
+    def _access_ok(self):
+        return self._host_ok() and self._peer_ok() and self._origin_ok()
+
     def do_GET(self):
-        if not self._host_ok():
+        if not self._access_ok():
             self.send_error(403, "loopback only")
             return
         path = urlparse(self.path).path
@@ -64,7 +86,7 @@ class KitHandler(BaseHTTPRequestHandler):
         self.wfile.write(data)
 
     def do_POST(self):
-        if not self._host_ok():
+        if not self._access_ok():
             self.send_error(403, "loopback only")
             return
         parsed = urlparse(self.path).path
@@ -75,7 +97,14 @@ class KitHandler(BaseHTTPRequestHandler):
         if name not in API_METHODS:
             self.send_error(404)
             return
-        length = int(self.headers.get("Content-Length") or 0)
+        try:
+            length = int(self.headers.get("Content-Length") or 0)
+        except (TypeError, ValueError):
+            self.send_error(400, "bad content-length")
+            return
+        if length < 0:
+            self.send_error(400, "bad content-length")
+            return
         if length > MAX_BODY:
             self.send_error(413)
             return
@@ -90,8 +119,8 @@ class KitHandler(BaseHTTPRequestHandler):
         method = getattr(self.api, name)
         try:
             result = method(*args)
-        except Exception as exc:
-            result = {"ok": False, "error": str(exc)}
+        except Exception:
+            result = {"ok": False, "error": "request failed"}
         payload = json.dumps(result).encode("utf-8")
         self.send_response(200)
         self.send_header("Content-Type", "application/json")
@@ -104,5 +133,6 @@ class KitHandler(BaseHTTPRequestHandler):
 def serve(api, ui_root, host, port):
     KitHandler.api = api
     KitHandler.ui_root = Path(ui_root)
+    KitHandler.bind_loopback = host in LOOPBACK
     httpd = ThreadingHTTPServer((host, port), KitHandler)
     httpd.serve_forever()

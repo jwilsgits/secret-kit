@@ -4,6 +4,7 @@
 import argparse
 import base64
 import sys
+import threading
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent
@@ -15,23 +16,31 @@ from engine.charset import CharsetError
 from engine.derive import derive as engine_derive
 from engine.entropy import EntropyError, EntropyPool, require_urandom
 from engine.generate import generate as engine_generate
-from engine.hashcheck import compare_files, hash_tree, verify_blob, verify_file
+from engine.hashcheck import compare_blobs, compare_files, hash_tree, verify_blob, verify_file
 from engine.http_server import LOOPBACK, serve as serve_http
 
 
+HTTP_UPLOAD = "use an upload in HTTP mode"
+
+
 class Api(object):
-    def __init__(self):
+    def __init__(self, http_mode=False):
+        self.http_mode = bool(http_mode)
         self.pool = EntropyPool()
+        self._lock = threading.Lock()
 
     def generate(self, spec):
-        return engine_generate(spec, self.pool)
+        with self._lock:
+            return engine_generate(spec, self.pool)
 
     def absorb_mouse(self, samples):
-        n = self.pool.absorb_mouse(samples)
+        with self._lock:
+            n = self.pool.absorb_mouse(samples)
         return {"bytes_collected": n}
 
     def clear_user_entropy(self):
-        self.pool.clear()
+        with self._lock:
+            self.pool.clear()
         return {"ok": True}
 
     def check_mnemonic(self, phrase):
@@ -43,6 +52,8 @@ class Api(object):
         }
 
     def hash_file(self, spec):
+        if self.http_mode:
+            return {"ok": False, "error": HTTP_UPLOAD}
         spec = spec or {}
         try:
             return verify_file(spec.get("path"), spec.get("expected"), spec.get("algo"))
@@ -58,6 +69,8 @@ class Api(object):
             return {"ok": False, "error": str(exc)}
 
     def _dialog(self, folder=False):
+        if self.http_mode:
+            return {"ok": False, "path": None, "error": HTTP_UPLOAD}
         try:
             import webview
         except ImportError:
@@ -82,6 +95,8 @@ class Api(object):
         return self._dialog(True)
 
     def compare_files(self, spec):
+        if self.http_mode:
+            return {"ok": False, "error": HTTP_UPLOAD}
         spec = spec or {}
         try:
             return compare_files(
@@ -90,7 +105,18 @@ class Api(object):
         except (CharsetError, OSError, ValueError) as exc:
             return {"ok": False, "error": str(exc)}
 
+    def compare_bytes(self, spec):
+        spec = spec or {}
+        try:
+            data_a = base64.b64decode(spec.get("content_a") or b"")
+            data_b = base64.b64decode(spec.get("content_b") or b"")
+            return compare_blobs(data_a, data_b, spec.get("algo") or "sha256")
+        except (CharsetError, OSError, ValueError) as exc:
+            return {"ok": False, "error": str(exc)}
+
     def hash_folder(self, spec):
+        if self.http_mode:
+            return {"ok": False, "error": HTTP_UPLOAD}
         spec = spec or {}
         try:
             return hash_tree(spec.get("path"), spec.get("algo") or "sha256")
@@ -98,7 +124,8 @@ class Api(object):
             return {"ok": False, "error": str(exc)}
 
     def derive(self, spec):
-        return engine_derive(spec, self.pool)
+        with self._lock:
+            return engine_derive(spec, self.pool)
 
 
 def _parse_http(value):
@@ -129,7 +156,7 @@ def main(argv=None):
         sys.stderr.write("UI file missing: %s\n" % (ui / "index.html"))
         return 1
 
-    api = Api()
+    api = Api(http_mode=bool(args.http))
     if args.http:
         try:
             host, port = _parse_http(args.http)

@@ -26,7 +26,7 @@ python3 -m venv .venv
 .venv/bin/python app.py --http 127.0.0.1:8765
 ```
 
-Open [http://127.0.0.1:8765](http://127.0.0.1:8765). Closing the tab forgets secrets. File-folder hashing still needs a real filesystem (desktop app or LXC); single-file checksum in the browser uses an upload.
+Open [http://127.0.0.1:8765](http://127.0.0.1:8765). Closing the tab forgets secrets. Browser hash and compare use uploads; folder hashing is desktop-only (or LXC with a real filesystem). `--i-understand-lan` still requires host publish `127.0.0.1`.
 
 ## Docker / OrbStack / Podman
 

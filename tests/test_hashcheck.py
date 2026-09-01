@@ -54,7 +54,7 @@ class FileHashTests(unittest.TestCase):
         self.assertTrue(matched["match"])
 
     def test_compare_and_folder(self):
-        from engine.hashcheck import compare_files, hash_tree
+        from engine.hashcheck import compare_blobs, compare_files, hash_tree
 
         other = self.path + ".b"
         with open(other, "wb") as handle:
@@ -66,6 +66,10 @@ class FileHashTests(unittest.TestCase):
                 handle.write(b"different")
             diff = compare_files(self.path, other, "sha256")
             self.assertFalse(diff["match"])
+            same_blobs = compare_blobs(b"secret-kit-fixture\n", b"secret-kit-fixture\n")
+            self.assertTrue(same_blobs["match"])
+            diff_blobs = compare_blobs(b"secret-kit-fixture\n", b"different")
+            self.assertFalse(diff_blobs["match"])
         finally:
             os.remove(other)
         folder = tempfile.mkdtemp()
