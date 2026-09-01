@@ -1,6 +1,6 @@
 # Secret Kit — multi-platform pocket-executable release spine
 
-**Decision (2026-08-22):** Ship packaging first. Feature work waits. Every later enhancement ships a build for every target that is ready; unfinished targets stay listed here as not-yet.
+**Decision (2026-08-31):** Packaging spine is complete. Feature work may proceed. Every later enhancement rebuilds every target this host can produce (`bash scripts/build-all.sh`). Unfinished hosts (Windows `.exe`, Apple notarization) stay listed as skip/blocked — do not pretend they shipped.
 
 One engine (`engine/` + `app.py`), one UI (`ui/`), four wrappers. Nothing saved. No vault. No network share of this project. Loopback-only on the host. CSPRNG stays in Python (`os.urandom`); optional user entropy cannot replace it.
 
@@ -95,11 +95,19 @@ Do not block Docker/AppImage polish on Apple notarization or a Windows VM.
 
 ## Release cadence
 
+Packaging **spine is complete** (2026-08-31). Feature work may proceed. Every feature release rebuilds all targets this host can produce:
+
+```bash
+# optionally bump VERSION first
+bash scripts/build-all.sh
+```
+
 - **Tag a VERSION** when shipping (see naming below).
-- **Build every target that is ready** for that VERSION.
-- Targets not ready yet stay in this doc as **not-yet** — do not pretend they shipped.
-- After the spine exists: **each feature enhancement** (new tab behavior, new derive path, etc.) gets a rebuild of all ready targets in the same release. No “Mac-only” feature drops once packaging is live.
+- `scripts/build-all.sh` runs tests, then each per-platform script, then `scripts/checksums.sh` → `dist/secret-kit-<VERSION>-SHA256SUMS`.
+- Targets the host cannot build are **skipped with a reason** (Windows on macOS; AppImage without a container engine). That is expected, not a failed release.
+- Do not pretend a skipped target shipped. Copy only files that exist under `dist/secret-kit-<VERSION>-*`.
 - Hand off via controlled copy (USB / private share you control). Do **not** publish this repo or images to GitHub/public registries as a distribution channel.
+- No “Mac-only” feature drops: if you cannot rebuild a ready target this week, say so in the handoff notes.
 
 ---
 
@@ -121,7 +129,7 @@ From README and PACKAGING — do not weaken these:
 
 ## Explicitly out of scope for this packaging phase
 
-Feature work waits until pocket executables exist for the ready platforms:
+These stay out of packaging. Feature work may proceed now that the spine exists; each feature release still rebuilds ready pocket targets via `scripts/build-all.sh`:
 
 - BIP-85 and further derivation schemes
 - Descriptor / extra wallet formats beyond what Derive already does
@@ -138,13 +146,14 @@ Track features separately; when one ships, rebuild all ready pocket targets.
 
 ```
 scripts/
+  build-all.sh           # exists — tests + every platform this host can build + checksums
+  checksums.sh           # exists — dist/secret-kit-<VERSION>-SHA256SUMS
   build-appimage.sh      # exists — Linux AppImage (Docker/Podman re-exec on macOS)
   appimage/              # exists — AppRun, .desktop
   build-docker.sh        # exists — build, tag, save → dist/secret-kit-<VERSION>-docker.tar.gz (+ .sha256)
   build-macos.sh         # exists — .app + zip + ad-hoc sign; notarize checklist in PACKAGING.md
   build-windows.md       # VM/CI recipe; WebView2 notes
   build-windows.ps1      # exists — PyInstaller onedir zip (UNTESTED on Windows)
-  checksums.sh           # optional: SHA-256SUMS for everything in dist/
 dist/                    # gitignored — release artifacts only
 ```
 
@@ -191,9 +200,10 @@ When updating this file after a build, mark each target:
 - **partial** — script or docs exist; artifact not yet verified
 - **not-yet** — not started
 
-As of 2026-08-22:
+As of 2026-08-31:
 
-- Docker: **partial** (Podman smoke 2026-08-22: build+save+run OK; air-gap tarball + SHA-256 in `dist/`; compose via `podman compose` + brew `docker-compose` 5.5.0 verified same day)
-- AppImage: **partial** (first `dist/SecretKit-x86_64.AppImage` via Podman 2026-08-22; HTTP smoke on extracted payload; full Linux desktop AppImage launch still unverified)
-- macOS pocket `.app`: **partial** (ad-hoc `dist/Secret Kit.app` + zip/SHA-256 via `scripts/build-macos.sh` 2026-08-22 arm64; window smoke OK; notarization blocked on identity; host Python 3.9 still required)
-- Windows: **recipe-ready / not-yet** (`scripts/build-windows.md` + `.ps1` 2026-08-22; no `.exe` until a Windows VM/host build)
+- Packaging spine: **complete** — per-platform scripts exist; `scripts/build-all.sh` rebuilds them after features
+- Docker: **ready** (air-gap tarball + SHA-256 in `dist/` from 2026-08-22; compose loopback + `nobody`; never push)
+- AppImage: **ready to rebuild** (first `dist/SecretKit-x86_64.AppImage` via Podman 2026-08-22; full Linux desktop launch still unverified on a real laptop)
+- macOS pocket `.app`: **ready to rebuild** (ad-hoc zip/SHA-256 2026-08-22 arm64; **notarization blocked on identity**; host Python 3.9 still required)
+- Windows: **skip on this Mac** — recipe ready; first `.exe` needs a Windows 10/11 host (`scripts/build-windows.ps1`)
