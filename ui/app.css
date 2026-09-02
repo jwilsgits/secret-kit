@@ -261,6 +261,10 @@ textarea { resize: vertical; width: 100%; }
   gap: 4px 12px;
 }
 
+.checks .check {
+  margin-top: 4px;
+}
+
 .advanced { margin-top: 12px; }
 .advanced summary { display: inline-block; margin-bottom: 10px; }
 

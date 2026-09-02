@@ -4,6 +4,7 @@ from engine.entropy import ByteSource, EntropyError, EntropyPool
 from engine.extra import generate_codes, generate_diceware, generate_hex, generate_uuid
 from engine.memorable import generate_memorable
 from engine.password import generate_password
+from engine.persona import FIELD_KEYS, generate_persona
 from engine.pin import generate_pin
 
 
@@ -66,6 +67,18 @@ def _seed(source, spec):
     }
 
 
+def _persona(source, spec):
+    persona = spec.get("persona") or {}
+    value = generate_persona(source, persona)
+    fields = persona.get("fields") or {}
+    count = sum(1 for key in FIELD_KEYS if fields.get(key))
+    return value, {
+        "type": "persona",
+        "mode": persona.get("mode") or "full",
+        "field_count": count,
+    }
+
+
 HANDLERS = {
     "pin": _pin,
     "password": _password,
@@ -75,6 +88,7 @@ HANDLERS = {
     "uuid": _uuid,
     "codes": _codes,
     "seed": _seed,
+    "persona": _persona,
 }
 
 

@@ -5,6 +5,9 @@ SK.passwords = {
   memGroups: 3,
   memSep: "-",
   dwWords: 6,
+  personaMode: "full",
+  personaGender: "any",
+  personaAge: "any",
   last: "",
   hidden: false,
 };
@@ -20,12 +23,20 @@ SK.wipePasswords = function () {
 };
 SK.wipes.passwords = SK.wipePasswords;
 
+SK.syncPersonaOpts = function () {
+  var partial = SK.passwords.personaMode === "partial";
+  SK.show(SK.$("persona-partial"), partial);
+  SK.show(SK.$("persona-age-wrap"), partial && SK.passwords.personaAge === "target");
+};
+
 SK.switchType = function (type) {
   SK.passwords.type = type;
   SK.show(SK.$("opts-pin"), type === "pin");
   SK.show(SK.$("opts-password"), type === "password");
   SK.show(SK.$("opts-memorable"), type === "memorable");
   SK.show(SK.$("opts-diceware"), type === "diceware");
+  SK.show(SK.$("opts-persona"), type === "persona");
+  if (type === "persona") SK.syncPersonaOpts();
   if (SK.refreshHelp) SK.refreshHelp();
 };
 
@@ -52,8 +63,25 @@ SK.buildPwSpec = function () {
     };
   } else if (p.type === "memorable") {
     spec.memorable = { groups: Number(p.memGroups), separator: p.memSep };
-  } else {
+  } else if (p.type === "diceware") {
     spec.diceware = { words: Number(p.dwWords) };
+  } else if (p.type === "persona") {
+    spec.persona = {
+      mode: p.personaMode,
+      gender: p.personaGender,
+      age: p.personaMode === "partial" && p.personaAge === "target"
+        ? Number(SK.$("persona-age-input").value)
+        : "any",
+      fields: {
+        name: SK.$("persona-field-name").checked,
+        dob: SK.$("persona-field-dob").checked,
+        gender: SK.$("persona-field-gender").checked,
+        street: SK.$("persona-field-street").checked,
+        location: SK.$("persona-field-location").checked,
+        phone: SK.$("persona-field-phone").checked,
+        username: SK.$("persona-field-username").checked,
+      },
+    };
   }
   return spec;
 };
@@ -95,6 +123,20 @@ SK.initPasswords = function () {
     SK.passwords.dwWords = v;
     SK.setSeg(SK.$("dw-words"), "data-dw", v);
   });
+  SK.bindSeg("persona-mode", "data-mode", function (v) {
+    SK.passwords.personaMode = v;
+    SK.setSeg(SK.$("persona-mode"), "data-mode", v);
+    SK.syncPersonaOpts();
+  });
+  SK.bindSeg("persona-gender", "data-gender", function (v) {
+    SK.passwords.personaGender = v;
+    SK.setSeg(SK.$("persona-gender"), "data-gender", v);
+  });
+  SK.bindSeg("persona-age", "data-age", function (v) {
+    SK.passwords.personaAge = v;
+    SK.setSeg(SK.$("persona-age"), "data-age", v);
+    SK.syncPersonaOpts();
+  });
   SK.$("generate").addEventListener("click", function () {
     SK.runGenerate(SK.buildPwSpec(), "error-passwords").then(function (result) {
       if (!result) return;
@@ -105,12 +147,15 @@ SK.initPasswords = function () {
         password: "Password",
         memorable: "Memorable password",
         diceware: "Diceware phrase",
+        persona: "Random persona",
       }[SK.passwords.type];
-      SK.$("pw-result-meta").textContent = result.meta.words
-        ? result.meta.words + " words"
-        : result.meta.length
-          ? result.meta.length + " characters"
-          : "";
+      SK.$("pw-result-meta").textContent = result.meta.field_count
+        ? result.meta.field_count + " fields"
+        : result.meta.words
+          ? result.meta.words + " words"
+          : result.meta.length
+            ? result.meta.length + " characters"
+            : "";
       SK.$("pw-result-text").textContent = result.value;
       SK.$("pw-hide").textContent = "Hide";
       SK.$("pw-clip").textContent = "";

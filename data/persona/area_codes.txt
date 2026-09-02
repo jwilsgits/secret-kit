@@ -1,0 +1,371 @@
+201|NJ|Bayonne
+202|DC|Washington
+203|CT|Bridgeport
+205|AL|Birmingham
+206|WA|Seattle
+207|ME|Auburn
+208|ID|Boise
+209|CA|Atwater
+210|TX|San Antonio
+212|NY|New York City
+213|CA|Los Angeles
+214|TX|Allen
+215|PA|Levittown
+216|OH|Brook Park
+217|IL|Champaign
+218|MN|Minneapolis
+219|IN|East Chicago
+220|OH|Athens
+223|PA|Harrisburg
+224|IL|Chicago
+225|LA|Baton Rouge
+227|MD|Baltimore
+228|MS|Biloxi
+229|GA|Albany
+231|MI|Muskegon
+234|OH|Akron
+235|MO|Columbia
+239|FL|Miami
+240|MD|Aspen Hill
+248|MI|West Bloomfield Township
+251|AL|Mobile
+252|NC|Greenville
+253|WA|Auburn
+254|TX|Houston
+256|AL|Anniston
+260|IN|Fort Wayne
+262|WI|Brookfield
+267|PA|Levittown
+269|MI|Battle Creek
+270|KY|Bowling Green
+272|PA|Philadelphia
+274|WI|Appleton
+276|VA|Richmond
+279|CA|Los Angeles
+281|TX|Alvin
+283|OH|Cincinnati
+301|MD|Aspen Hill
+302|DE|Dover
+303|CO|Arvada
+304|WV|South Charleston
+305|FL|Miami
+307|WY|Casper
+308|NE|Grand Island
+309|IL|Bloomington
+310|CA|Beverly Hills
+312|IL|West Chicago
+313|MI|Allen Park
+314|MO|Kirkwood
+315|NY|Auburn
+316|KS|Wichita
+317|IN|Carmel
+318|LA|Alexandria
+319|IA|Burlington
+320|MN|Saint Cloud
+321|FL|Miami
+323|CA|Los Angeles
+324|FL|Jacksonville
+325|TX|Abilene
+326|OH|Dayton
+327|AR|Little Rock
+329|NY|New York
+330|OH|Akron
+331|IL|Addison
+332|NY|New York
+334|AL|Auburn
+336|NC|Charlotte
+337|LA|Lafayette
+339|MA|Boston
+341|CA|Fremont
+346|TX|Alvin
+347|NY|New York
+350|CA|Stockton
+351|MA|Beverly
+352|FL|Gainesville
+353|WI|Madison
+357|CA|Fresno
+360|WA|Bellingham
+361|TX|Corpus Christi
+363|NY|New York
+364|KY|Bowling Green
+369|CA|Vallejo
+380|OH|Columbus
+385|UT|American Fork
+386|FL|Daytona Beach
+401|RI|Bristol
+402|NE|Bellevue
+404|GA|Atlanta
+405|OK|Bethany
+406|MT|Billings
+407|FL|Miami
+408|CA|Campbell
+409|TX|Beaumont
+410|MD|Annapolis
+412|PA|Bethel Park
+413|MA|Agawam
+414|WI|Franklin
+415|CA|Novato
+417|MO|Joplin
+419|OH|Ashland
+423|TN|Bristol
+424|CA|Beverly Hills
+425|WA|Bellevue
+430|TX|Tyler
+432|TX|Houston
+434|VA|Charlottesville
+435|UT|Salt Lake City
+436|OH|Lorain
+440|OH|Ashtabula
+442|CA|La Quinta
+443|MD|Annapolis
+445|PA|Philadelphia
+447|IL|Springfield
+448|FL|Miami
+457|LA|Shreveport Bossier City
+458|OR|Albany
+463|IN|Carmel
+464|IL|Chicago
+469|TX|Allen
+470|GA|Atlanta
+471|MS|Tupelo
+472|NC|Fayetteville
+475|CT|Bridgeport
+478|GA|Macon
+479|AR|Fayetteville
+480|AZ|Apache Junction
+483|AL|Montgomery
+484|PA|Allentown
+501|AR|Benton
+502|KY|Louisville
+503|OR|Aloha
+504|LA|Chalmette
+505|NM|Albuquerque
+507|MN|Austin
+508|MA|Attleboro
+509|WA|Kennewick
+510|CA|Alameda
+512|TX|Austin
+513|OH|Cincinnati
+515|IA|Ames
+516|NY|Baldwin
+517|MI|Adrian
+518|NY|New York
+520|AZ|Casa Grande
+530|CA|Chico
+531|NE|Bellevue
+534|WI|Wausau
+539|OK|Bartlesville
+540|VA|Richmond
+541|OR|Albany
+551|NJ|Bayonne
+557|MO|Kansas City
+559|CA|Clovis
+561|FL|Miami
+562|CA|Bellflower
+563|IA|Bettendorf
+564|WA|Olympia
+567|OH|Ashland
+570|PA|Philadelphia
+571|VA|Alexandria
+572|OK|Oklahoma City
+573|MO|Cape Girardeau
+574|IN|Elkhart
+575|NM|Alamogordo
+580|OK|Altus
+582|PA|Erie
+585|NY|New York
+586|MI|Clinton
+601|MS|Clinton
+602|AZ|Phoenix
+603|NH|Manchester
+605|SD|Aberdeen
+606|KY|Ashland
+607|NY|Binghamton
+608|WI|Milwaukee
+609|NJ|Atlantic City
+610|PA|Allentown
+612|MN|Crystal
+614|OH|Columbus
+615|TN|Brentwood
+616|MI|Detroit
+617|MA|Boston
+618|IL|East Alton
+619|CA|Chula Vista
+620|KS|Dodge City
+621|TX|Houston
+623|AZ|Avondale
+624|NY|Buffalo
+626|CA|Alhambra
+628|CA|Novato
+629|TN|Brentwood
+630|IL|Addison
+631|NY|New York
+636|MO|Ballwin
+640|NJ|Trenton
+641|IA|Marshalltown
+645|FL|Miami
+646|NY|New York City
+650|CA|Belmont
+651|MN|Apple Valley
+656|FL|Tampa and its suburbs
+657|CA|Anaheim
+659|AL|Birmingham
+660|MO|Sedalia
+661|CA|Bakersfield
+662|MS|Clarksdale
+667|MD|Annapolis
+669|CA|Campbell
+678|GA|Atlanta
+679|MI|Dearborn
+680|NY|Syracuse
+681|WV|South Charleston
+682|TX|Arlington
+686|VA|Richmond
+689|FL|Orlando
+701|ND|Bismarck
+702|NV|Henderson
+703|VA|Alexandria
+704|NC|Charlotte
+706|GA|Athens
+707|CA|Benicia
+708|IL|Bellwood
+712|IA|Council Bluffs
+713|TX|Alvin
+714|CA|Anaheim
+715|WI|Eau Claire
+716|NY|Buffalo
+717|PA|Harrisburg
+718|NY|New York
+719|CO|Colorado Springs
+720|CO|Arvada
+724|PA|Monroeville
+725|NV|Henderson
+726|TX|San Antonio
+727|FL|Miami
+728|FL|Palm Beach
+729|TN|Nashville
+730|IL|Carbondale
+731|TN|Jackson
+732|NJ|Carteret
+734|MI|Ann Arbor
+737|TX|Austin
+738|CA|Los Angeles
+740|OH|Athens
+743|NC|Charlotte
+747|CA|Los Angeles
+748|CO|Denver
+754|FL|Miami
+757|VA|Chesapeake
+760|CA|Apple Valley
+762|GA|Athens
+763|MN|Blaine
+765|IN|Anderson
+769|MS|Clinton
+770|GA|Atlanta
+771|DC|Washington
+772|FL|Fort Pierce South
+773|IL|West Chicago
+774|MA|Attleboro
+775|NV|Carson City
+779|IL|Belvidere
+781|MA|Boston
+785|KS|Wichita
+786|FL|Miami
+801|UT|American Fork
+802|VT|South Burlington
+803|SC|Aiken
+804|VA|Hopewell
+805|CA|Atascadero
+806|TX|Amarillo
+808|HI|Hilo
+810|MI|Detroit
+812|IN|Bloomington
+813|FL|Brandon
+814|PA|Altoona
+815|IL|Belvidere
+816|MO|Belton
+817|TX|Arlington
+818|CA|Los Angeles
+820|CA|Los Angeles
+821|SC|Greenville
+826|VA|Fredericksburg
+828|NC|Asheville
+830|TX|Houston
+831|CA|Hollister
+832|TX|Alvin
+835|PA|Chester
+837|CA|Redding
+838|NY|Albany
+839|SC|Columbia
+840|CA|Fontana
+843|SC|North Charleston
+845|NY|New York
+847|IL|Chicago
+848|NJ|Carteret
+850|FL|Miami
+854|SC|North Charleston
+856|NJ|Newark
+857|MA|Boston
+858|CA|Poway
+859|KY|Covington
+860|CT|Bristol
+861|IL|Peoria
+862|NJ|Belleville
+863|FL|Lakeland
+864|SC|Anderson
+865|TN|Knoxville
+870|AR|El Dorado
+872|IL|Chicago
+878|PA|Bethel Park
+901|TN|Bartlett
+903|TX|Corsicana
+904|FL|Jacksonville
+906|MI|Escanaba
+907|AK|Anchorage
+908|NJ|Cranford
+909|CA|Chino
+910|NC|Fayetteville
+912|GA|Hinesville
+913|KS|Kansas City
+914|NY|Harrison
+915|TX|El Paso
+916|CA|Los Angeles
+917|NY|New York
+918|OK|Bartlesville
+919|NC|Apex
+920|WI|Appleton
+924|MN|Rochester
+925|CA|Antioch
+928|AZ|Bullhead City
+929|NY|New York
+930|IN|Bloomington
+931|TN|Clarksville
+934|NY|New York
+936|TX|Conroe
+937|OH|Beavercreek
+938|AL|Huntsville
+940|TX|Denton
+941|FL|Miami
+943|GA|Atlanta
+945|TX|Houston
+947|MI|West Bloomfield Township
+948|VA|Richmond
+949|CA|Aliso Viejo
+951|CA|Banning
+952|MN|Bloomington
+954|FL|Miami
+956|TX|Brownsville
+959|CT|Bristol
+970|CO|Fort Collins
+971|OR|Aloha
+972|TX|Allen
+973|NJ|Belleville
+975|MO|Kansas City
+978|MA|Beverly
+979|TX|Bryan
+980|NC|Charlotte
+983|CO|Denver
+984|NC|Apex
+985|LA|Houma
+986|ID|Boise
+989|MI|Bay City

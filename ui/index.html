@@ -31,6 +31,7 @@
           <option value="password">Random password</option>
           <option value="memorable">Memorable password</option>
           <option value="diceware">Diceware phrase</option>
+          <option value="persona">Random persona</option>
         </select>
       </label>
 
@@ -128,6 +129,52 @@
           </div>
         </fieldset>
         <p class="hint">Full BIP-39 English words, spaces only. Easier to type than a random password.</p>
+      </section>
+
+      <section class="card opts hidden" id="opts-persona">
+        <fieldset class="field">
+          <legend class="label-row">Randomness <button type="button" class="help-q" data-help="passwords.persona.mode" aria-label="What is this">?</button></legend>
+          <div class="seg" id="persona-mode">
+            <button type="button" data-mode="full" class="on">Full random</button>
+            <button type="button" data-mode="partial">Partial random</button>
+          </div>
+        </fieldset>
+        <div id="persona-partial" class="hidden">
+          <div class="row">
+            <fieldset class="field grow">
+              <legend>Gender</legend>
+              <div class="seg" id="persona-gender">
+                <button type="button" data-gender="any" class="on">Any</button>
+                <button type="button" data-gender="female">Female</button>
+                <button type="button" data-gender="male">Male</button>
+              </div>
+            </fieldset>
+            <fieldset class="field grow">
+              <legend>Age</legend>
+              <div class="seg" id="persona-age">
+                <button type="button" data-age="any" class="on">Any</button>
+                <button type="button" data-age="target">Target</button>
+              </div>
+            </fieldset>
+          </div>
+          <label class="field hidden" id="persona-age-wrap">
+            <span>Target age (18–90, ±2 years)</span>
+            <input id="persona-age-input" type="number" min="18" max="90" value="40">
+          </label>
+        </div>
+        <fieldset class="field">
+          <legend class="label-row">Include in result <button type="button" class="help-q" data-help="passwords.persona.fields" aria-label="What is this">?</button></legend>
+          <div class="checks">
+            <label class="check"><input id="persona-field-name" type="checkbox" checked> Full name</label>
+            <label class="check"><input id="persona-field-dob" type="checkbox" checked> Date of birth</label>
+            <label class="check"><input id="persona-field-gender" type="checkbox" checked> Gender</label>
+            <label class="check"><input id="persona-field-street" type="checkbox" checked> Street address</label>
+            <label class="check"><input id="persona-field-location" type="checkbox" checked> City / state / ZIP</label>
+            <label class="check"><input id="persona-field-phone" type="checkbox" checked> Phone</label>
+            <label class="check"><input id="persona-field-username" type="checkbox" checked> Username</label>
+          </div>
+        </fieldset>
+        <p class="hint">Uncheck fields you do not need. Manage email separately.</p>
       </section>
 
       <div id="entropy-passwords"></div>

@@ -1,3 +1,4 @@
+import re
 import unittest
 
 from engine.generate import generate
@@ -30,6 +31,34 @@ class GenerateDispatchTests(unittest.TestCase):
     def test_unknown_type(self):
         result = generate({"type": "widget"})
         self.assertFalse(result["ok"])
+
+    def test_persona_dispatch(self):
+        result = generate(
+            {
+                "type": "persona",
+                "persona": {
+                    "mode": "full",
+                    "gender": "any",
+                    "age": "any",
+                    "fields": {
+                        "name": True,
+                        "dob": True,
+                        "gender": True,
+                        "street": True,
+                        "location": True,
+                        "phone": True,
+                        "username": True,
+                    },
+                },
+            }
+        )
+        self.assertTrue(result["ok"], result.get("error"))
+        self.assertEqual(result["meta"]["type"], "persona")
+        self.assertEqual(result["meta"]["mode"], "full")
+        self.assertEqual(result["meta"]["field_count"], 7)
+        self.assertIn("Full name:", result["value"])
+        self.assertIn("Phone:", result["value"])
+        self.assertNotRegex(result["value"], r"(?i)^\s*email\s*:", re.M)
 
 
 class WorkbenchDeriveTests(unittest.TestCase):

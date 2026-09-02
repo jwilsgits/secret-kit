@@ -21,6 +21,18 @@ SK.HELP = {
     what: "Makes several real BIP-39 English words separated by spaces.",
     why: "Easier to write down than a random password. Longer lists are stronger.",
   },
+  "passwords.generate.persona": {
+    what: "Makes disposable signup details (name, date of birth, address, phone, username) when you do not want a service tying the account to your real identity. Secret Kit does not generate email — use Proton, Apple Hide My Email, or another alias you manage yourself.",
+    why: "A throwaway form-filler identity, parallel to a throwaway email. Not for fraud, impersonation, or passing real identity verification. Names can still match living people.",
+  },
+  "passwords.persona.mode": {
+    what: "Full random picks gender and age (18–75) freely. Partial random lets you lock gender and/or a target age (±2 years).",
+    why: "Some forms only need a plausible adult; others want a specific profile without typing it yourself.",
+  },
+  "passwords.persona.fields": {
+    what: "Each checkbox is one line in the result (city, state, and ZIP stay together). Copy what you need. There is no email field.",
+    why: "Signup forms ask for different subsets. Uncheck anything you will not paste.",
+  },
   "passwords.lookalikes": {
     what: "Skips characters that look alike (0/O, 1/l/I).",
     why: "Fewer mistakes when you copy by hand. Slightly fewer possible codes.",

@@ -1,0 +1,371 @@
+Bayonne|NJ|07002|201
+Washington|DC|20001|202
+Bridgeport|CT|06604|203
+Birmingham|AL|35203|205
+Seattle|WA|98101|206
+Auburn|ME|04210|207
+Boise|ID|83702|208
+Atwater|CA|95301|209
+San Antonio|TX|78202|210
+New York City|NY|10001|212
+Los Angeles|CA|90001|213
+Allen|TX|75002|214
+Levittown|PA|19054|215
+Brook Park|OH|44142|216
+Champaign|IL|61820|217
+Minneapolis|MN|55401|218
+East Chicago|IN|46312|219
+Athens|OH|45701|220
+Harrisburg|PA|17101|223
+Chicago|IL|60601|224
+Baton Rouge|LA|70801|225
+Baltimore|MD|21201|227
+Biloxi|MS|39530|228
+Albany|GA|31701|229
+Muskegon|MI|49440|231
+Akron|OH|44301|234
+Columbia|MO|65201|235
+Miami|FL|33122|239
+Aspen Hill|MD|20906|240
+West Bloomfield Township|MI|48322|248
+Mobile|AL|36602|251
+Greenville|NC|27834|252
+Auburn|WA|98002|253
+Houston|TX|77002|254
+Anniston|AL|36201|256
+Fort Wayne|IN|46802|260
+Brookfield|WI|53005|262
+Levittown|PA|19054|267
+Battle Creek|MI|49015|269
+Bowling Green|KY|42103|270
+Philadelphia|PA|19102|272
+Appleton|WI|54911|274
+Richmond|VA|23219|276
+Los Angeles|CA|90001|279
+Alvin|TX|77511|281
+Cincinnati|OH|45202|283
+Aspen Hill|MD|20906|301
+Dover|DE|19901|302
+Arvada|CO|80002|303
+South Charleston|WV|25303|304
+Miami|FL|33122|305
+Casper|WY|82601|307
+Grand Island|NE|68801|308
+Bloomington|IL|61701|309
+Beverly Hills|CA|90210|310
+West Chicago|IL|60185|312
+Allen Park|MI|48101|313
+Kirkwood|MO|63122|314
+Auburn|NY|13021|315
+Wichita|KS|67202|316
+Carmel|IN|46032|317
+Alexandria|LA|71301|318
+Burlington|IA|52601|319
+Saint Cloud|MN|56301|320
+Miami|FL|33122|321
+Los Angeles|CA|90001|323
+Jacksonville|FL|32202|324
+Abilene|TX|79601|325
+Dayton|OH|45402|326
+Little Rock|AR|72201|327
+New York|NY|10001|329
+Akron|OH|44301|330
+Addison|IL|60101|331
+New York|NY|10001|332
+Auburn|AL|36830|334
+Charlotte|NC|28202|336
+Lafayette|LA|70501|337
+Boston|MA|02108|339
+Fremont|CA|94536|341
+Alvin|TX|77511|346
+New York|NY|10001|347
+Stockton|CA|95202|350
+Beverly|MA|01915|351
+Gainesville|FL|32601|352
+Madison|WI|53703|353
+Fresno|CA|93701|357
+Bellingham|WA|98225|360
+Corpus Christi|TX|78401|361
+New York|NY|10001|363
+Bowling Green|KY|42103|364
+Vallejo|CA|94590|369
+Columbus|OH|43201|380
+American Fork|UT|84003|385
+Daytona Beach|FL|32114|386
+Bristol|RI|02809|401
+Bellevue|NE|68005|402
+Atlanta|GA|30303|404
+Bethany|OK|73008|405
+Billings|MT|59101|406
+Miami|FL|33122|407
+Campbell|CA|95008|408
+Beaumont|TX|77701|409
+Annapolis|MD|21403|410
+Bethel Park|PA|15102|412
+Agawam|MA|01001|413
+Franklin|WI|53132|414
+Novato|CA|94945|415
+Joplin|MO|64801|417
+Ashland|OH|44805|419
+Bristol|TN|37620|423
+Beverly Hills|CA|90210|424
+Bellevue|WA|98005|425
+Tyler|TX|75701|430
+Houston|TX|77002|432
+Charlottesville|VA|22901|434
+Salt Lake City|UT|84101|435
+Lorain|OH|44052|436
+Ashtabula|OH|44004|440
+La Quinta|CA|92253|442
+Annapolis|MD|21403|443
+Philadelphia|PA|19102|445
+Springfield|IL|62701|447
+Miami|FL|33122|448
+Shreveport Bossier City|LA|71101|457
+Albany|OR|97321|458
+Carmel|IN|46032|463
+Chicago|IL|60601|464
+Allen|TX|75002|469
+Atlanta|GA|30303|470
+Tupelo|MS|38801|471
+Fayetteville|NC|28304|472
+Bridgeport|CT|06604|475
+Macon|GA|31204|478
+Fayetteville|AR|72701|479
+Apache Junction|AZ|85220|480
+Montgomery|AL|36104|483
+Allentown|PA|18101|484
+Benton|AR|72015|501
+Louisville|KY|40202|502
+Aloha|OR|97006|503
+Chalmette|LA|70043|504
+Albuquerque|NM|87102|505
+Austin|MN|55912|507
+Attleboro|MA|02703|508
+Kennewick|WA|99336|509
+Alameda|CA|94502|510
+Austin|TX|78701|512
+Cincinnati|OH|45202|513
+Ames|IA|50010|515
+Baldwin|NY|11510|516
+Adrian|MI|49221|517
+New York|NY|10001|518
+Casa Grande|AZ|85230|520
+Chico|CA|95928|530
+Bellevue|NE|68005|531
+Wausau|WI|54401|534
+Bartlesville|OK|74003|539
+Richmond|VA|23219|540
+Albany|OR|97321|541
+Bayonne|NJ|07002|551
+Kansas City|MO|64101|557
+Clovis|CA|93611|559
+Miami|FL|33122|561
+Bellflower|CA|90706|562
+Bettendorf|IA|52722|563
+Olympia|WA|98501|564
+Ashland|OH|44805|567
+Philadelphia|PA|19102|570
+Alexandria|VA|22301|571
+Oklahoma City|OK|73102|572
+Cape Girardeau|MO|63701|573
+Elkhart|IN|46514|574
+Alamogordo|NM|88310|575
+Altus|OK|73521|580
+Erie|PA|16501|582
+New York|NY|10001|585
+Clinton|MI|49236|586
+Clinton|MS|39056|601
+Phoenix|AZ|85003|602
+Manchester|NH|03101|603
+Aberdeen|SD|57401|605
+Ashland|KY|41102|606
+Binghamton|NY|13901|607
+Milwaukee|WI|53202|608
+Atlantic City|NJ|08401|609
+Allentown|PA|18101|610
+Crystal|MN|55428|612
+Columbus|OH|43201|614
+Brentwood|TN|37027|615
+Detroit|MI|48201|616
+Boston|MA|02108|617
+East Alton|IL|62024|618
+Chula Vista|CA|91910|619
+Dodge City|KS|67801|620
+Houston|TX|77002|621
+Avondale|AZ|85323|623
+Buffalo|NY|14201|624
+Alhambra|CA|91801|626
+Novato|CA|94945|628
+Brentwood|TN|37027|629
+Addison|IL|60101|630
+New York|NY|10001|631
+Ballwin|MO|63021|636
+Trenton|NJ|08608|640
+Marshalltown|IA|50158|641
+Miami|FL|33122|645
+New York City|NY|10001|646
+Belmont|CA|94002|650
+Apple Valley|MN|55124|651
+Tampa and its suburbs|FL|33602|656
+Anaheim|CA|92801|657
+Birmingham|AL|35203|659
+Sedalia|MO|65301|660
+Bakersfield|CA|93301|661
+Clarksdale|MS|38669|662
+Annapolis|MD|21403|667
+Campbell|CA|95008|669
+Atlanta|GA|30303|678
+Dearborn|MI|48120|679
+Syracuse|NY|13202|680
+South Charleston|WV|25303|681
+Arlington|TX|76006|682
+Richmond|VA|23219|686
+Orlando|FL|32801|689
+Bismarck|ND|58501|701
+Henderson|NV|89011|702
+Alexandria|VA|22301|703
+Charlotte|NC|28202|704
+Athens|GA|30601|706
+Benicia|CA|94510|707
+Bellwood|IL|60104|708
+Council Bluffs|IA|51502|712
+Alvin|TX|77511|713
+Anaheim|CA|92801|714
+Eau Claire|WI|54701|715
+Buffalo|NY|14201|716
+Harrisburg|PA|17101|717
+New York|NY|10001|718
+Colorado Springs|CO|80903|719
+Arvada|CO|80002|720
+Monroeville|PA|15146|724
+Henderson|NV|89011|725
+San Antonio|TX|78202|726
+Miami|FL|33122|727
+Palm Beach|FL|33480|728
+Nashville|TN|37201|729
+Carbondale|IL|62901|730
+Jackson|TN|38301|731
+Carteret|NJ|07008|732
+Ann Arbor|MI|48103|734
+Austin|TX|78701|737
+Los Angeles|CA|90001|738
+Athens|OH|45701|740
+Charlotte|NC|28202|743
+Los Angeles|CA|90001|747
+Denver|CO|80202|748
+Miami|FL|33122|754
+Chesapeake|VA|23320|757
+Apple Valley|CA|92307|760
+Athens|GA|30601|762
+Blaine|MN|55434|763
+Anderson|IN|46011|765
+Clinton|MS|39056|769
+Atlanta|GA|30303|770
+Washington|DC|20001|771
+Fort Pierce South|FL|34945|772
+West Chicago|IL|60185|773
+Attleboro|MA|02703|774
+Carson City|NV|89701|775
+Belvidere|IL|61008|779
+Boston|MA|02108|781
+Wichita|KS|67202|785
+Miami|FL|33122|786
+American Fork|UT|84003|801
+South Burlington|VT|05403|802
+Aiken|SC|29801|803
+Hopewell|VA|23860|804
+Atascadero|CA|93422|805
+Amarillo|TX|79101|806
+Hilo|HI|96720|808
+Detroit|MI|48201|810
+Bloomington|IN|47401|812
+Brandon|FL|33510|813
+Altoona|PA|16601|814
+Belvidere|IL|61008|815
+Belton|MO|64012|816
+Arlington|TX|76006|817
+Los Angeles|CA|90001|818
+Los Angeles|CA|90001|820
+Greenville|SC|29601|821
+Fredericksburg|VA|22401|826
+Asheville|NC|28801|828
+Houston|TX|77002|830
+Hollister|CA|95023|831
+Alvin|TX|77511|832
+Chester|PA|19013|835
+Redding|CA|96001|837
+Albany|NY|12202|838
+Columbia|SC|29201|839
+Fontana|CA|92335|840
+North Charleston|SC|29406|843
+New York|NY|10001|845
+Chicago|IL|60601|847
+Carteret|NJ|07008|848
+Miami|FL|33122|850
+North Charleston|SC|29406|854
+Newark|NJ|07102|856
+Boston|MA|02108|857
+Poway|CA|92064|858
+Covington|KY|41011|859
+Bristol|CT|06010|860
+Peoria|IL|61602|861
+Belleville|NJ|07109|862
+Lakeland|FL|33801|863
+Anderson|SC|29621|864
+Knoxville|TN|37902|865
+El Dorado|AR|71730|870
+Chicago|IL|60601|872
+Bethel Park|PA|15102|878
+Bartlett|TN|38134|901
+Corsicana|TX|75110|903
+Jacksonville|FL|32202|904
+Escanaba|MI|49829|906
+Anchorage|AK|99501|907
+Cranford|NJ|07016|908
+Chino|CA|91710|909
+Fayetteville|NC|28304|910
+Hinesville|GA|31313|912
+Kansas City|KS|66101|913
+Harrison|NY|10528|914
+El Paso|TX|79901|915
+Los Angeles|CA|90001|916
+New York|NY|10001|917
+Bartlesville|OK|74003|918
+Apex|NC|27502|919
+Appleton|WI|54911|920
+Rochester|MN|55901|924
+Antioch|CA|94509|925
+Bullhead City|AZ|86426|928
+New York|NY|10001|929
+Bloomington|IN|47401|930
+Clarksville|TN|37040|931
+New York|NY|10001|934
+Conroe|TX|77301|936
+Beavercreek|OH|45430|937
+Huntsville|AL|35801|938
+Denton|TX|76201|940
+Miami|FL|33122|941
+Atlanta|GA|30303|943
+Houston|TX|77002|945
+West Bloomfield Township|MI|48322|947
+Richmond|VA|23219|948
+Aliso Viejo|CA|92656|949
+Banning|CA|92220|951
+Bloomington|MN|55420|952
+Miami|FL|33122|954
+Brownsville|TX|78520|956
+Bristol|CT|06010|959
+Fort Collins|CO|80521|970
+Aloha|OR|97006|971
+Allen|TX|75002|972
+Belleville|NJ|07109|973
+Kansas City|MO|64101|975
+Beverly|MA|01915|978
+Bryan|TX|77801|979
+Charlotte|NC|28202|980
+Denver|CO|80202|983
+Apex|NC|27502|984
+Houma|LA|70360|985
+Boise|ID|83702|986
+Bay City|MI|48708|989
