@@ -7,6 +7,7 @@ from pathlib import Path
 from urllib.parse import urlparse
 
 LOOPBACK = frozenset(("127.0.0.1", "localhost", "::1"))
+IDE_ORIGINS = frozenset(("vscode-webview", "vscode-file", "cursor"))
 API_METHODS = frozenset((
     "generate",
     "absorb_mouse",
@@ -46,15 +47,55 @@ class KitHandler(BaseHTTPRequestHandler):
             peer = peer[7:]
         return peer in LOOPBACK
 
-    def _origin_ok(self):
+    def _parsed_origin(self):
         origin = (self.headers.get("Origin") or "").strip()
         if not origin:
+            return "", None
+        return origin, urlparse(origin)
+
+    def _origin_ok(self):
+        origin, parsed = self._parsed_origin()
+        if not origin:
             return True
-        host = (urlparse(origin).hostname or "").strip().lower()
-        return host in LOOPBACK
+        host = (parsed.hostname or "").strip().lower()
+        if host in LOOPBACK:
+            return True
+        if not self.bind_loopback:
+            return False
+        if origin.lower() == "null":
+            return True
+        return parsed.scheme in IDE_ORIGINS
+
+    def _cors_origin(self):
+        origin, parsed = self._parsed_origin()
+        if not origin or not self._origin_ok():
+            return None
+        host = (parsed.hostname or "").strip().lower()
+        if host in LOOPBACK or origin.lower() == "null" or parsed.scheme in IDE_ORIGINS:
+            return origin
+        return None
+
+    def _add_cors(self):
+        allow = self._cors_origin()
+        if not allow:
+            return
+        self.send_header("Access-Control-Allow-Origin", allow)
+        self.send_header("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
+        self.send_header("Access-Control-Allow-Headers", "Content-Type")
+        self.send_header("Vary", "Origin")
 
     def _access_ok(self):
         return self._host_ok() and self._peer_ok() and self._origin_ok()
+
+    def do_OPTIONS(self):
+        if not self._access_ok():
+            self.send_error(403, "loopback only")
+            return
+        self.send_response(204)
+        self._add_cors()
+        self.send_header("Content-Length", "0")
+        self.send_header("Cache-Control", "no-store")
+        self.end_headers()
 
     def do_GET(self):
         if not self._access_ok():
@@ -82,6 +123,7 @@ class KitHandler(BaseHTTPRequestHandler):
         self.send_header("Content-Type", ctype)
         self.send_header("Content-Length", str(len(data)))
         self.send_header("Cache-Control", "no-store")
+        self._add_cors()
         self.end_headers()
         self.wfile.write(data)
 
@@ -126,6 +168,7 @@ class KitHandler(BaseHTTPRequestHandler):
         self.send_header("Content-Type", "application/json")
         self.send_header("Content-Length", str(len(payload)))
         self.send_header("Cache-Control", "no-store")
+        self._add_cors()
         self.end_headers()
         self.wfile.write(payload)
 

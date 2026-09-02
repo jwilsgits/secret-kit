@@ -118,6 +118,106 @@ class HttpApiTests(unittest.TestCase):
         body = json.loads(urlopen(req).read().decode("utf-8"))
         self.assertTrue(body["ok"], body)
 
+    def _post_generate(self, origin, body=None):
+        req = Request(
+            "http://127.0.0.1:18765/api/generate",
+            data=json.dumps(body if body is not None else PIN).encode(),
+            headers={
+                "Content-Type": "application/json",
+                "Origin": origin,
+            },
+            method="POST",
+        )
+        return urlopen(req)
+
+    def test_allows_ide_origin_when_loopback_bound(self):
+        origin = "vscode-webview://webview-panel"
+        resp = self._post_generate(origin)
+        body = json.loads(resp.read().decode("utf-8"))
+        self.assertTrue(body["ok"], body)
+        self.assertEqual(resp.headers.get("Access-Control-Allow-Origin"), origin)
+
+    def test_allows_null_origin_when_loopback_bound(self):
+        resp = self._post_generate("null")
+        body = json.loads(resp.read().decode("utf-8"))
+        self.assertTrue(body["ok"], body)
+        self.assertEqual(resp.headers.get("Access-Control-Allow-Origin"), "null")
+
+    def test_allows_cursor_origin_when_loopback_bound(self):
+        origin = "cursor://file"
+        resp = self._post_generate(origin)
+        body = json.loads(resp.read().decode("utf-8"))
+        self.assertTrue(body["ok"], body)
+        self.assertEqual(resp.headers.get("Access-Control-Allow-Origin"), origin)
+
+    def test_options_preflight_ide_origin(self):
+        conn = http.client.HTTPConnection("127.0.0.1", 18765, timeout=2)
+        try:
+            conn.putrequest("OPTIONS", "/api/generate")
+            conn.putheader("Origin", "vscode-webview://webview-panel")
+            conn.putheader("Access-Control-Request-Method", "POST")
+            conn.putheader("Access-Control-Request-Headers", "content-type")
+            conn.endheaders()
+            resp = conn.getresponse()
+            status = resp.status
+            allow_origin = resp.getheader("Access-Control-Allow-Origin")
+            allow_headers = (resp.getheader("Access-Control-Allow-Headers") or "").lower()
+        finally:
+            conn.close()
+        self.assertEqual(status, 204)
+        self.assertEqual(allow_origin, "vscode-webview://webview-panel")
+        self.assertIn("content-type", allow_headers)
+
+    def test_lan_bind_still_rejects_foreign_origin(self):
+        from engine.http_server import KitHandler
+
+        old = KitHandler.bind_loopback
+        KitHandler.bind_loopback = False
+        try:
+            req = Request(
+                "http://127.0.0.1:18765/api/generate",
+                data=json.dumps(PIN).encode(),
+                headers={
+                    "Content-Type": "application/json",
+                    "Origin": "http://evil.example",
+                },
+                method="POST",
+            )
+            with self.assertRaises(HTTPError) as ctx:
+                urlopen(req)
+            self.assertEqual(ctx.exception.code, 403)
+        finally:
+            KitHandler.bind_loopback = old
+
+    def test_generate_persona(self):
+        spec = [{
+            "type": "persona",
+            "persona": {
+                "mode": "full",
+                "gender": "any",
+                "age": "any",
+                "fields": {
+                    "name": True,
+                    "dob": True,
+                    "gender": True,
+                    "street": True,
+                    "location": True,
+                    "phone": True,
+                    "username": True,
+                },
+            },
+        }]
+        req = Request(
+            "http://127.0.0.1:18765/api/generate",
+            data=json.dumps(spec).encode(),
+            headers={"Content-Type": "application/json"},
+            method="POST",
+        )
+        body = json.loads(urlopen(req).read().decode("utf-8"))
+        self.assertTrue(body["ok"], body)
+        self.assertEqual(body["meta"]["type"], "persona")
+        self.assertIn("Full name:", body["value"])
+
     def test_rejects_bad_content_length(self):
         conn = http.client.HTTPConnection("127.0.0.1", 18765, timeout=2)
         try:
