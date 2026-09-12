@@ -253,7 +253,19 @@
         <div id="seed-body" class="hidden">
           <ol id="seed-words-list" class="words hidden"></ol>
           <pre id="keys-result-text" class="secret hidden"></pre>
-          <div class="actions">
+          <button type="button" class="primary hidden" id="seed-wrote">I wrote these down</button>
+          <div id="seed-confirm" class="hidden">
+            <p class="hint label-row">Type the requested words from your paper notes.
+              <button type="button" class="help-q" data-help="keys.confirm" aria-label="What is this">?</button>
+            </p>
+            <div id="seed-confirm-fields"></div>
+            <div class="actions">
+              <button type="button" class="primary" id="seed-confirm-run">Confirm written down</button>
+              <button type="button" id="seed-show-again">Show words again</button>
+            </div>
+            <p class="error hidden" id="error-seed-confirm"></p>
+          </div>
+          <div class="actions" id="seed-actions">
             <button type="button" id="seed-hide">Hide</button>
             <button type="button" id="seed-copy">Copy</button>
             <span id="seed-send-wrap" class="hidden label-row">

@@ -7,12 +7,112 @@ SK.keys = {
   lastKind: "seed",
   revealed: false,
   hidden: false,
+  confirmed: false,
+  challenge: null,
+  confirming: false,
+};
+
+SK.shuffleIndexes = function (n, k) {
+  var pool = [];
+  var i;
+  for (i = 1; i <= n; i++) pool.push(i);
+  var buf = new Uint32Array(pool.length);
+  crypto.getRandomValues(buf);
+  for (i = pool.length - 1; i > 0; i--) {
+    var j = buf[i] % (i + 1);
+    var tmp = pool[i];
+    pool[i] = pool[j];
+    pool[j] = tmp;
+  }
+  return pool.slice(0, k);
+};
+
+SK.seedAnswersMatch = function (mnemonic, answers) {
+  var words = String(mnemonic || "").split(/\s+/).filter(Boolean);
+  if (!answers || !answers.length) return false;
+  for (var i = 0; i < answers.length; i++) {
+    var index = Number(answers[i].index);
+    if (!index || index < 1 || index > words.length) return false;
+    var normalized = String(answers[i].word == null ? "" : answers[i].word)
+      .replace(/\s+/g, " ")
+      .trim()
+      .toLowerCase();
+    if (!normalized || normalized !== words[index - 1].toLowerCase()) return false;
+  }
+  return true;
+};
+
+SK.setSeedExportEnabled = function (on) {
+  ["seed-copy", "seed-print", "seed-send"].forEach(function (id) {
+    var el = SK.$(id);
+    if (el) el.disabled = !on;
+  });
+};
+
+SK.clearSeedConfirmUi = function () {
+  SK.$("seed-confirm-fields").innerHTML = "";
+  SK.show(SK.$("seed-confirm"), false);
+  SK.show(SK.$("error-seed-confirm"), false);
+  SK.$("error-seed-confirm").textContent = "";
+  SK.show(SK.$("seed-wrote"), false);
+};
+
+SK.renderSeedConfirmFields = function (indexes) {
+  var hold = SK.$("seed-confirm-fields");
+  hold.innerHTML = "";
+  indexes.forEach(function (idx, i) {
+    var label = document.createElement("label");
+    label.className = "field";
+    var span = document.createElement("span");
+    span.textContent = "Word " + idx;
+    var input = document.createElement("input");
+    input.type = "text";
+    input.autocomplete = "off";
+    input.spellcheck = false;
+    input.setAttribute("data-challenge-index", String(idx));
+    label.appendChild(span);
+    label.appendChild(input);
+    hold.appendChild(label);
+    if (i === indexes.length - 1) {
+      input.addEventListener("keydown", function (ev) {
+        if (ev.key === "Enter") {
+          ev.preventDefault();
+          SK.$("seed-confirm-run").click();
+        }
+      });
+    }
+  });
+  var first = hold.querySelector("input");
+  if (first) first.focus();
+};
+
+SK.syncKeysConfirmUi = function () {
+  var isSeed = SK.keys.lastKind === "seed";
+  var confirming = isSeed && SK.keys.confirming;
+  var needsConfirm = isSeed && SK.keys.revealed && !SK.keys.confirmed && !confirming;
+  var canExport = !isSeed || SK.keys.confirmed;
+
+  SK.show(SK.$("seed-wrote"), needsConfirm);
+  SK.show(SK.$("seed-confirm"), confirming);
+  SK.show(SK.$("seed-actions"), !confirming || !isSeed);
+  SK.show(SK.$("seed-hide"), !confirming);
+  SK.setSeedExportEnabled(canExport && SK.keys.revealed);
+
+  if (isSeed && SK.keys.revealed && !confirming) {
+    SK.show(SK.$("seed-words-list"), !SK.keys.hidden);
+  }
+  if (confirming) {
+    SK.show(SK.$("seed-words-list"), false);
+  }
 };
 
 SK.wipeKeys = function () {
   SK.keys.last = "";
   SK.keys.revealed = false;
   SK.keys.hidden = false;
+  SK.keys.confirmed = false;
+  SK.keys.challenge = null;
+  SK.keys.confirming = false;
   SK.$("seed-words-list").innerHTML = "";
   SK.$("keys-result-text").textContent = "";
   SK.show(SK.$("result-keys"), false);
@@ -21,6 +121,11 @@ SK.wipeKeys = function () {
   SK.show(SK.$("error-keys"), false);
   SK.$("seed-clip").textContent = "";
   SK.clearPrint();
+  SK.clearSeedConfirmUi();
+  SK.setSeedExportEnabled(false);
+  SK.$("seed-hide").textContent = "Hide";
+  SK.show(SK.$("seed-actions"), true);
+  SK.show(SK.$("seed-hide"), true);
 };
 SK.wipes.keys = SK.wipeKeys;
 
@@ -61,6 +166,10 @@ SK.initKeys = function () {
       SK.keys.lastKind = SK.keys.keyType;
       SK.keys.revealed = SK.keys.keyType !== "seed";
       SK.keys.hidden = false;
+      SK.keys.confirmed = SK.keys.keyType !== "seed";
+      SK.keys.challenge = null;
+      SK.keys.confirming = false;
+      SK.clearSeedConfirmUi();
       SK.$("keys-result-label").textContent = {
         seed: "Wallet seed",
         hex: "Hex key",
@@ -82,24 +191,78 @@ SK.initKeys = function () {
       SK.show(SK.$("seed-words-list"), SK.keys.keyType === "seed");
       SK.show(SK.$("keys-result-text"), SK.keys.keyType !== "seed");
       SK.show(SK.$("seed-send-wrap"), SK.keys.keyType === "seed");
+      SK.$("seed-hide").textContent = "Hide";
+      SK.syncKeysConfirmUi();
     });
   });
   SK.$("seed-reveal").addEventListener("click", function () {
     SK.keys.revealed = true;
+    SK.keys.confirmed = false;
+    SK.keys.confirming = false;
+    SK.keys.challenge = null;
+    SK.keys.hidden = false;
     SK.show(SK.$("seed-gate"), false);
     SK.show(SK.$("seed-body"), true);
+    SK.show(SK.$("seed-words-list"), true);
+    SK.syncKeysConfirmUi();
+  });
+  SK.$("seed-wrote").addEventListener("click", function () {
+    if (SK.keys.lastKind !== "seed" || !SK.keys.revealed || SK.keys.confirmed) return;
+    var words = SK.keys.last.split(/\s+/).filter(Boolean);
+    var count = words.length >= 24 ? 4 : 3;
+    SK.keys.challenge = SK.shuffleIndexes(words.length, count);
+    SK.keys.confirming = true;
+    SK.keys.hidden = false;
+    SK.show(SK.$("error-seed-confirm"), false);
+    SK.$("error-seed-confirm").textContent = "";
+    SK.renderSeedConfirmFields(SK.keys.challenge);
+    SK.syncKeysConfirmUi();
+  });
+  SK.$("seed-show-again").addEventListener("click", function () {
+    SK.keys.confirming = false;
+    SK.keys.challenge = null;
+    SK.keys.confirmed = false;
+    SK.keys.hidden = false;
+    SK.clearSeedConfirmUi();
+    SK.show(SK.$("seed-words-list"), true);
+    SK.syncKeysConfirmUi();
+  });
+  SK.$("seed-confirm-run").addEventListener("click", function () {
+    if (!SK.keys.confirming || !SK.keys.challenge) return;
+    var answers = [];
+    var inputs = SK.$("seed-confirm-fields").querySelectorAll("input");
+    for (var i = 0; i < inputs.length; i++) {
+      answers.push({
+        index: Number(inputs[i].getAttribute("data-challenge-index")),
+        word: inputs[i].value,
+      });
+    }
+    if (!SK.seedAnswersMatch(SK.keys.last, answers)) {
+      SK.fail("error-seed-confirm", "Those words do not match. Check your notes and try again.");
+      return;
+    }
+    SK.keys.confirmed = true;
+    SK.keys.confirming = false;
+    SK.keys.challenge = null;
+    SK.keys.hidden = false;
+    SK.clearSeedConfirmUi();
+    SK.show(SK.$("seed-words-list"), true);
+    SK.syncKeysConfirmUi();
   });
   SK.$("seed-hide").addEventListener("click", function () {
+    if (SK.keys.confirming) return;
     SK.keys.hidden = !SK.keys.hidden;
     if (SK.keys.lastKind === "seed") SK.show(SK.$("seed-words-list"), !SK.keys.hidden);
     else SK.$("keys-result-text").textContent = SK.keys.hidden ? "••••••••" : SK.keys.last;
     SK.$("seed-hide").textContent = SK.keys.hidden ? "Show" : "Hide";
   });
   SK.$("seed-copy").addEventListener("click", function () {
+    if (SK.keys.lastKind === "seed" && !SK.keys.confirmed) return;
     if (SK.keys.revealed && !SK.keys.hidden) SK.copyText(SK.keys.last, SK.$("seed-clip"));
   });
   SK.$("seed-send").addEventListener("click", function () {
     if (!SK.keys.last) return;
+    if (SK.keys.lastKind === "seed" && !SK.keys.confirmed) return;
     var words = SK.keys.last;
     SK.wipeKeys();
     SK.switchTab("derive");
@@ -110,6 +273,7 @@ SK.initKeys = function () {
   });
   SK.$("seed-print").addEventListener("click", function () {
     if (!SK.keys.last) return;
+    if (SK.keys.lastKind === "seed" && !SK.keys.confirmed) return;
     if (SK.keys.lastKind === "seed") {
       var lines = SK.keys.last.split(/\s+/).map(function (w, i) {
         var n = (i + 1 < 10 ? "0" : "") + (i + 1);
@@ -122,4 +286,5 @@ SK.initKeys = function () {
   });
   SK.$("seed-clear").addEventListener("click", SK.wipeKeys);
   SK.switchKeyType("seed");
+  SK.setSeedExportEnabled(false);
 };

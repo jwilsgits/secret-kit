@@ -304,6 +304,24 @@ textarea { resize: vertical; width: 100%; }
   margin: 8px 0 0;
 }
 
+.actions button:disabled,
+#seed-send:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+#seed-wrote {
+  margin: 0 0 12px;
+}
+
+#seed-confirm-fields .field {
+  margin-top: 8px;
+}
+
+#seed-confirm-fields input {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+
 .secret {
   font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
   font-size: 18px;

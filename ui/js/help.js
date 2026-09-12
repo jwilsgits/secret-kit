@@ -69,6 +69,10 @@ SK.HELP = {
     what: "Shows the seed words on screen.",
     why: "Anyone who sees them can spend. Hide them when you are done looking.",
   },
+  "keys.confirm": {
+    what: "After you write the seed on paper, Secret Kit asks for a few word numbers to check the notes. Copy, print, and Send to Derive stay off until this passes.",
+    why: "This program does not keep a copy. If the notebook is wrong, those coins are gone.",
+  },
   "keys.send": {
     what: "Moves this seed into Derive for this session, then clears Keys.",
     why: "So you do not leave the same words sitting on two tabs.",
