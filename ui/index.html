@@ -204,6 +204,8 @@
           <option value="hex">Hex key</option>
           <option value="uuid">UUID v4</option>
           <option value="codes">Backup codes</option>
+          <option value="ssh">SSH Ed25519</option>
+          <option value="age">age identity</option>
         </select>
       </label>
       <section class="card opts" id="opts-seed">
@@ -237,6 +239,12 @@
         </fieldset>
         <p class="hint">Look-alike-free groups like ab3dk-mnpq7. For sites that give you a backup-code list.</p>
       </section>
+      <section class="card opts hidden" id="opts-ssh">
+        <p class="hint">OpenSSH Ed25519. Public line is safe to paste into authorized_keys. Private stays behind Reveal.</p>
+      </section>
+      <section class="card opts hidden" id="opts-age">
+        <p class="hint">X25519 recipient you can publish. The AGE-SECRET-KEY stays behind Reveal. This does not encrypt a file.</p>
+      </section>
       <div id="entropy-keys"></div>
       <button type="button" class="primary" id="gen-seed">Generate</button>
       <p class="error hidden" id="error-keys"></p>
@@ -246,16 +254,30 @@
           <span class="hint" id="seed-meta"></span>
         </div>
         <div id="seed-gate" class="hidden">
-          <p>This is a wallet seed. Anyone who sees it can spend the funds.</p>
+          <p id="seed-gate-copy">This is a wallet seed. Anyone who sees it can spend the funds.</p>
           <button type="button" class="primary" id="seed-reveal">Reveal words</button>
           <button type="button" class="help-q" data-help="keys.reveal" aria-label="What is this">?</button>
         </div>
         <div id="seed-body" class="hidden">
           <ol id="seed-words-list" class="words hidden"></ol>
           <pre id="keys-result-text" class="secret hidden"></pre>
-          <div class="actions">
+          <pre id="keys-private-text" class="secret hidden"></pre>
+          <button type="button" class="primary hidden" id="seed-wrote">I wrote these down</button>
+          <div id="seed-confirm" class="hidden">
+            <p class="hint label-row">Type the requested words from your paper notes.
+              <button type="button" class="help-q" data-help="keys.confirm" aria-label="What is this">?</button>
+            </p>
+            <div id="seed-confirm-fields"></div>
+            <div class="actions">
+              <button type="button" class="primary" id="seed-confirm-run">Confirm written down</button>
+              <button type="button" id="seed-show-again">Show words again</button>
+            </div>
+            <p class="error hidden" id="error-seed-confirm"></p>
+          </div>
+          <div class="actions" id="seed-actions">
             <button type="button" id="seed-hide">Hide</button>
             <button type="button" id="seed-copy">Copy</button>
+            <button type="button" class="hidden" id="seed-copy-private">Copy private</button>
             <span id="seed-send-wrap" class="hidden label-row">
               <button type="button" id="seed-send">Send to Derive</button>
               <button type="button" class="help-q" data-help="keys.send" aria-label="What is this">?</button>

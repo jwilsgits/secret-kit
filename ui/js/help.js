@@ -61,6 +61,14 @@ SK.HELP = {
     what: "Makes a list of look-alike-free backup codes.",
     why: "For sites that say “save these recovery codes.” Each line is one code.",
   },
+  "keys.generate.ssh": {
+    what: "Makes an OpenSSH Ed25519 keypair. The public line is what a server’s authorized_keys wants.",
+    why: "Generate it offline, then copy only the public line to the machine that should let you in. The private block can sign in as you.",
+  },
+  "keys.generate.age": {
+    what: "Makes an age X25519 identity. The age1… line is the recipient others encrypt to.",
+    why: "You can publish the recipient. Anyone with the AGE-SECRET-KEY can decrypt. This screen does not encrypt a file.",
+  },
   "keys.words": {
     what: "12 words is the usual wallet backup. 24 words is a longer backup of the same kind.",
     why: "Both are BIP-39. 24 words is more entropy; 12 is easier to write. Either can spend funds.",
@@ -68,6 +76,14 @@ SK.HELP = {
   "keys.reveal": {
     what: "Shows the seed words on screen.",
     why: "Anyone who sees them can spend. Hide them when you are done looking.",
+  },
+  "keys.reveal.private": {
+    what: "Shows the private key on screen.",
+    why: "Anyone who sees it can use the SSH key or decrypt age files. Hide it when you are done looking.",
+  },
+  "keys.confirm": {
+    what: "After you write the seed on paper, Secret Kit asks for a few word numbers to check the notes. Copy, print, and Send to Derive stay off until this passes.",
+    why: "This program does not keep a copy. If the notebook is wrong, those coins are gone.",
   },
   "keys.send": {
     what: "Moves this seed into Derive for this session, then clears Keys.",
