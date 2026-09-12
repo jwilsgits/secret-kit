@@ -8,6 +8,12 @@ SK.verify = {
   folderPath: "",
   lastHashDigest: "",
   lastFolderText: "",
+  pgpPayload: "",
+  pgpSig: "",
+  pgpKey: "",
+  pgpPayloadContent: null,
+  pgpSigContent: null,
+  pgpKeyContent: null,
 };
 
 SK.wipeVerify = function () {
@@ -26,11 +32,21 @@ SK.wipeVerify = function () {
   SK.verify.folderPath = "";
   SK.verify.lastHashDigest = "";
   SK.verify.lastFolderText = "";
+  SK.verify.pgpPayload = "";
+  SK.verify.pgpSig = "";
+  SK.verify.pgpKey = "";
+  SK.verify.pgpPayloadContent = null;
+  SK.verify.pgpSigContent = null;
+  SK.verify.pgpKeyContent = null;
   SK.$("cmp-a-label").textContent = "none";
   SK.$("cmp-b-label").textContent = "none";
   SK.$("folder-label").textContent = "none";
+  SK.$("pgp-payload-label").textContent = "none";
+  SK.$("pgp-sig-label").textContent = "none";
+  SK.$("pgp-key-label").textContent = "none";
   SK.$("cmp-detail").textContent = "";
   SK.$("folder-detail").textContent = "";
+  SK.$("pgp-detail").textContent = "";
   SK.show(SK.$("hash-algo-wrap"), false);
   SK.show(SK.$("hash-result"), false);
   SK.show(SK.$("mn-verdict"), false);
@@ -42,6 +58,9 @@ SK.wipeVerify = function () {
   SK.show(SK.$("error-folder"), false);
   SK.show(SK.$("folder-detail"), false);
   SK.show(SK.$("folder-copy"), false);
+  SK.show(SK.$("error-pgp"), false);
+  SK.show(SK.$("pgp-verdict"), false);
+  SK.show(SK.$("pgp-detail"), false);
 };
 SK.wipes.verify = SK.wipeVerify;
 
@@ -216,6 +235,74 @@ SK.initVerify = function () {
   });
   SK.$("folder-copy").addEventListener("click", function () {
     SK.copyText(SK.verify.lastFolderText, SK.$("folder-label"));
+  });
+  function groupFingerprint(hex) {
+    var s = String(hex || "").replace(/\s/g, "").toUpperCase();
+    if (s.length !== 40) return s;
+    var parts = [];
+    for (var i = 0; i < 40; i += 4) parts.push(s.slice(i, i + 4));
+    return parts.slice(0, 5).join(" ") + "  " + parts.slice(5).join(" ");
+  }
+  function pickPgp(kind, label) {
+    pickInto(function (res) {
+      if (kind === "payload") {
+        SK.verify.pgpPayload = res.path;
+        SK.verify.pgpPayloadContent = res.uploaded ? res.content : null;
+      } else if (kind === "sig") {
+        SK.verify.pgpSig = res.path;
+        SK.verify.pgpSigContent = res.uploaded ? res.content : null;
+      } else {
+        SK.verify.pgpKey = res.path;
+        SK.verify.pgpKeyContent = res.uploaded ? res.content : null;
+      }
+    }, label);
+  }
+  SK.$("pgp-pick-payload").addEventListener("click", function () {
+    pickPgp("payload", "pgp-payload-label");
+  });
+  SK.$("pgp-pick-sig").addEventListener("click", function () {
+    pickPgp("sig", "pgp-sig-label");
+  });
+  SK.$("pgp-pick-key").addEventListener("click", function () {
+    pickPgp("key", "pgp-key-label");
+  });
+  SK.$("pgp-run").addEventListener("click", function () {
+    SK.show(SK.$("error-pgp"), false);
+    SK.show(SK.$("pgp-verdict"), false);
+    SK.show(SK.$("pgp-detail"), false);
+    if (!SK.verify.pgpPayload || !SK.verify.pgpSig || !SK.verify.pgpKey) {
+      return SK.fail("error-pgp", "Choose the payload, the signature, and the public key.");
+    }
+    var uploaded = SK.verify.pgpPayloadContent != null && SK.verify.pgpSigContent != null && SK.verify.pgpKeyContent != null;
+    var spec = uploaded
+      ? {
+          content_payload: SK.verify.pgpPayloadContent,
+          content_sig: SK.verify.pgpSigContent,
+          content_key: SK.verify.pgpKeyContent,
+        }
+      : {
+          path: SK.verify.pgpPayload,
+          path_sig: SK.verify.pgpSig,
+          path_key: SK.verify.pgpKey,
+        };
+    SK.api.verify_pgp(spec).then(function (result) {
+      if (!result || !result.ok) return SK.fail("error-pgp", (result && result.error) || "Verify failed.");
+      var el = SK.$("pgp-verdict");
+      el.textContent = result.good ? "Good signature" : "Bad signature.";
+      el.className = "verdict " + (result.good ? "good" : "bad");
+      var lines = [];
+      if (result.fingerprint) lines.push(groupFingerprint(result.fingerprint));
+      if (result.user_id) lines.push(result.user_id);
+      if (result.subkey_id) lines.push("Signing subkey: " + String(result.subkey_id).toUpperCase());
+      if (result.hash_algo) lines.push("Hash algorithm: " + String(result.hash_algo).toUpperCase().replace("SHA", "SHA-"));
+      lines.push("This key came from the file you chose. Secret Kit did not look it up.");
+      if (result.expired) lines.push("Warning: this key is past its expiry date.");
+      SK.$("pgp-detail").textContent = lines.join("\n");
+      SK.show(el, true);
+      SK.show(SK.$("pgp-detail"), true);
+    }).catch(function (err) {
+      SK.fail("error-pgp", String(err));
+    });
   });
   SK.bindDrop(SK.$("hash-drop"), null, function (path) {
     SK.verify.hashPath = path;

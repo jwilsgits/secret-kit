@@ -67,6 +67,7 @@ SK.api = {
   compare_files: function (spec) { return SK.apiCall("compare_files", [spec]); },
   compare_bytes: function (spec) { return SK.apiCall("compare_bytes", [spec]); },
   hash_folder: function (spec) { return SK.apiCall("hash_folder", [spec]); },
+  verify_pgp: function (spec) { return SK.apiCall("verify_pgp", [spec]); },
   pick_folder: function () { return SK.apiCall("pick_folder", []); },
   pick_file: function () {
     if (window.pywebview && window.pywebview.api && window.pywebview.api.pick_file) {

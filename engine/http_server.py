@@ -21,6 +21,7 @@ API_METHODS = frozenset((
     "derive",
     "hash_bytes",
     "compare_bytes",
+    "verify_pgp",
 ))
 MAX_BODY = 32 * 1024 * 1024
 

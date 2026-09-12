@@ -97,6 +97,10 @@ SK.HELP = {
     what: "Old checksums. Secret Kit will match them but labels them legacy.",
     why: "A match only proves the file equals that old hash. It is not a modern integrity bar.",
   },
+  "verify.pgp": {
+    what: "Checks that this file was signed by the public key you supplied (detached .asc / .sig). Secret Kit does not download keys.",
+    why: "A checksum copied from the same website can be swapped with the file. A signature still holds if you got that public key some other time.",
+  },
   "verify.compare": {
     what: "Hashes two files the same way and says if the bytes match.",
     why: "Confirm a copy without opening either file.",

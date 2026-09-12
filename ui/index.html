@@ -299,6 +299,28 @@
         </div>
       </section>
 
+      <section class="card" id="pgp-card">
+        <h2 class="card-title label-row">OpenPGP signature <button type="button" class="help-q" data-help="verify.pgp" aria-label="What is this">?</button></h2>
+        <p class="hint">The checker is in this app. The public key is a file you choose.</p>
+        <p class="hint" id="pgp-http-hint">Native window hashes the download on disk. In the browser, the file must fit in a 32 MB upload.</p>
+        <div class="row">
+          <button type="button" id="pgp-pick-payload">Payload…</button>
+          <span class="hint" id="pgp-payload-label">none</span>
+        </div>
+        <div class="row">
+          <button type="button" id="pgp-pick-sig">Signature (.asc / .sig)…</button>
+          <span class="hint" id="pgp-sig-label">none</span>
+        </div>
+        <div class="row">
+          <button type="button" id="pgp-pick-key">Public key…</button>
+          <span class="hint" id="pgp-key-label">none</span>
+        </div>
+        <button type="button" class="primary" id="pgp-run">Check signature</button>
+        <p class="error hidden" id="error-pgp"></p>
+        <p class="verdict hidden" id="pgp-verdict"></p>
+        <pre class="secret small hidden" id="pgp-detail"></pre>
+      </section>
+
       <section class="card">
         <h2 class="card-title label-row">Compare two files <button type="button" class="help-q" data-help="verify.compare" aria-label="What is this">?</button></h2>
         <p class="hint">Same algorithm for both. SHA-256 by default.</p>

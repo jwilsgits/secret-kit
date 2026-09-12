@@ -295,3 +295,44 @@ class HttpApiTests(unittest.TestCase):
         diff = json.loads(urlopen(req).read().decode("utf-8"))
         self.assertTrue(diff["ok"], diff)
         self.assertFalse(diff["match"])
+
+    def test_verify_pgp_upload(self):
+        import base64
+        from pathlib import Path
+
+        fixtures = Path(__file__).resolve().parent / "fixtures" / "openpgp"
+        req = Request(
+            "http://127.0.0.1:18765/api/verify_pgp",
+            data=json.dumps([{
+                "content_payload": base64.b64encode(
+                    (fixtures / "payload.bin").read_bytes()
+                ).decode("ascii"),
+                "content_sig": base64.b64encode(
+                    (fixtures / "good.asc").read_bytes()
+                ).decode("ascii"),
+                "content_key": base64.b64encode(
+                    (fixtures / "key.asc").read_bytes()
+                ).decode("ascii"),
+            }]).encode(),
+            headers={"Content-Type": "application/json"},
+            method="POST",
+        )
+        body = json.loads(urlopen(req).read().decode("utf-8"))
+        self.assertTrue(body["ok"], body)
+        self.assertTrue(body["good"], body)
+        self.assertEqual(body["fingerprint"], "0ABDF4E185B4E211D9AD05417DC374A96E063FCE")
+
+    def test_verify_pgp_path_refused_in_http_mode(self):
+        req = Request(
+            "http://127.0.0.1:18765/api/verify_pgp",
+            data=json.dumps([{
+                "path": "/tmp/payload.bin",
+                "path_sig": "/tmp/good.asc",
+                "path_key": "/tmp/key.asc",
+            }]).encode(),
+            headers={"Content-Type": "application/json"},
+            method="POST",
+        )
+        body = json.loads(urlopen(req).read().decode("utf-8"))
+        self.assertFalse(body["ok"])
+        self.assertIn("use an upload in HTTP mode", body["error"])

@@ -74,6 +74,8 @@ Secret Kit does not fetch keys. A good result is **not** “this is Tor.” It i
 
 **Match rule**
 
+The verifier lives in the app tree (`engine/openpgp.py`). The public key is never shipped in `data/`. Do not bundle vendor keys.
+
 1. Parse every public primary key and signing subkey from the supplied key file.
 2. Read the signature’s issuer key ID (or fingerprint).
 3. If that ID is not among those keys: fail. Error: `This signature was not made by the key file you supplied.`

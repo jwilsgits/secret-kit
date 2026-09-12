@@ -3,6 +3,7 @@
 
 import argparse
 import base64
+import io
 import sys
 import threading
 from pathlib import Path
@@ -18,6 +19,7 @@ from engine.entropy import EntropyError, EntropyPool, require_urandom
 from engine.generate import generate as engine_generate
 from engine.hashcheck import compare_blobs, compare_files, hash_tree, verify_blob, verify_file
 from engine.http_server import LOOPBACK, serve as serve_http
+from engine.openpgp import verify_detached
 
 
 HTTP_UPLOAD = "use an upload in HTTP mode"
@@ -120,6 +122,40 @@ class Api(object):
         spec = spec or {}
         try:
             return hash_tree(spec.get("path"), spec.get("algo") or "sha256")
+        except (CharsetError, OSError, ValueError) as exc:
+            return {"ok": False, "error": str(exc)}
+
+    def _b64(self, value):
+        if not value:
+            return b""
+        if isinstance(value, bytes):
+            return base64.b64decode(value)
+        return base64.b64decode(value)
+
+    def _file_bytes(self, spec, path_key, content_key):
+        content = spec.get(content_key)
+        if content:
+            return self._b64(content)
+        path = spec.get(path_key)
+        if not path:
+            return b""
+        with open(path, "rb") as handle:
+            return handle.read()
+
+    def verify_pgp(self, spec):
+        spec = spec or {}
+        if self.http_mode and (spec.get("path") or spec.get("path_sig") or spec.get("path_key")):
+            return {"ok": False, "error": HTTP_UPLOAD}
+        try:
+            if spec.get("content_payload"):
+                payload = io.BytesIO(self._b64(spec.get("content_payload")))
+            else:
+                payload = spec.get("path")
+                if not payload:
+                    return {"ok": False, "error": HTTP_UPLOAD if self.http_mode else "choose a payload file"}
+            signature = self._file_bytes(spec, "path_sig", "content_sig")
+            public_key = self._file_bytes(spec, "path_key", "content_key")
+            return verify_detached(payload, signature, public_key)
         except (CharsetError, OSError, ValueError) as exc:
             return {"ok": False, "error": str(exc)}
 
