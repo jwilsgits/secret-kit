@@ -4,12 +4,17 @@ SK.keys = {
   hexBytes: 32,
   codeCount: 8,
   last: "",
+  private: "",
   lastKind: "seed",
   revealed: false,
   hidden: false,
   confirmed: false,
   challenge: null,
   confirming: false,
+};
+
+SK.isAsymmetricKey = function (kind) {
+  return kind === "ssh" || kind === "age";
 };
 
 SK.shuffleIndexes = function (n, k) {
@@ -88,6 +93,7 @@ SK.renderSeedConfirmFields = function (indexes) {
 
 SK.syncKeysConfirmUi = function () {
   var isSeed = SK.keys.lastKind === "seed";
+  var asym = SK.isAsymmetricKey(SK.keys.lastKind);
   var confirming = isSeed && SK.keys.confirming;
   var needsConfirm = isSeed && SK.keys.revealed && !SK.keys.confirmed && !confirming;
   var canExport = !isSeed || SK.keys.confirmed;
@@ -96,7 +102,7 @@ SK.syncKeysConfirmUi = function () {
   SK.show(SK.$("seed-confirm"), confirming);
   SK.show(SK.$("seed-actions"), !confirming || !isSeed);
   SK.show(SK.$("seed-hide"), !confirming);
-  SK.setSeedExportEnabled(canExport && SK.keys.revealed);
+  SK.setSeedExportEnabled(canExport && (isSeed ? SK.keys.revealed : true));
 
   if (isSeed && SK.keys.revealed && !confirming) {
     SK.show(SK.$("seed-words-list"), !SK.keys.hidden);
@@ -104,10 +110,22 @@ SK.syncKeysConfirmUi = function () {
   if (confirming) {
     SK.show(SK.$("seed-words-list"), false);
   }
+
+  if (asym) {
+    SK.show(SK.$("keys-result-text"), true);
+    SK.show(SK.$("keys-private-text"), SK.keys.revealed && !SK.keys.hidden);
+    SK.show(SK.$("seed-copy-private"), SK.keys.revealed);
+    SK.show(SK.$("seed-wrote"), false);
+    SK.show(SK.$("seed-confirm"), false);
+  } else {
+    SK.show(SK.$("seed-copy-private"), false);
+    SK.show(SK.$("keys-private-text"), false);
+  }
 };
 
 SK.wipeKeys = function () {
   SK.keys.last = "";
+  SK.keys.private = "";
   SK.keys.revealed = false;
   SK.keys.hidden = false;
   SK.keys.confirmed = false;
@@ -115,6 +133,7 @@ SK.wipeKeys = function () {
   SK.keys.confirming = false;
   SK.$("seed-words-list").innerHTML = "";
   SK.$("keys-result-text").textContent = "";
+  SK.$("keys-private-text").textContent = "";
   SK.show(SK.$("result-keys"), false);
   SK.show(SK.$("seed-gate"), true);
   SK.show(SK.$("seed-body"), false);
@@ -126,6 +145,10 @@ SK.wipeKeys = function () {
   SK.$("seed-hide").textContent = "Hide";
   SK.show(SK.$("seed-actions"), true);
   SK.show(SK.$("seed-hide"), true);
+  SK.show(SK.$("seed-copy-private"), false);
+  SK.$("seed-gate-copy").textContent =
+    "This is a wallet seed. Anyone who sees it can spend the funds.";
+  SK.$("seed-reveal").textContent = "Reveal words";
 };
 SK.wipes.keys = SK.wipeKeys;
 
@@ -134,6 +157,8 @@ SK.switchKeyType = function (type) {
   SK.show(SK.$("opts-seed"), type === "seed");
   SK.show(SK.$("opts-hex"), type === "hex");
   SK.show(SK.$("opts-codes"), type === "codes");
+  SK.show(SK.$("opts-ssh"), type === "ssh");
+  SK.show(SK.$("opts-age"), type === "age");
   if (SK.refreshHelp) SK.refreshHelp();
 };
 
@@ -161,10 +186,20 @@ SK.initKeys = function () {
     if (SK.keys.keyType === "codes") spec.codes = { count: Number(SK.keys.codeCount) };
     SK.runGenerate(spec, "error-keys").then(function (result) {
       if (!result) return;
-      var value = SK.keys.keyType === "codes" ? result.value.join("\n") : result.value;
+      var asym = SK.isAsymmetricKey(SK.keys.keyType);
+      var value;
+      SK.keys.private = "";
+      if (SK.keys.keyType === "codes") {
+        value = result.value.join("\n");
+      } else if (asym) {
+        value = result.value.public;
+        SK.keys.private = result.value.private;
+      } else {
+        value = result.value;
+      }
       SK.keys.last = value;
       SK.keys.lastKind = SK.keys.keyType;
-      SK.keys.revealed = SK.keys.keyType !== "seed";
+      SK.keys.revealed = SK.keys.keyType !== "seed" && !asym;
       SK.keys.hidden = false;
       SK.keys.confirmed = SK.keys.keyType !== "seed";
       SK.keys.challenge = null;
@@ -175,6 +210,8 @@ SK.initKeys = function () {
         hex: "Hex key",
         uuid: "UUID v4",
         codes: "Backup codes",
+        ssh: "SSH Ed25519",
+        age: "age identity",
       }[SK.keys.keyType];
       SK.$("seed-meta").textContent = result.meta.checksum_valid
         ? "checksum valid"
@@ -185,11 +222,35 @@ SK.initKeys = function () {
             : "";
       SK.fillWords(SK.$("seed-words-list"), SK.keys.keyType === "seed" ? value : "");
       SK.$("keys-result-text").textContent = value;
+      SK.$("keys-private-text").textContent = SK.keys.private || "";
       SK.show(SK.$("result-keys"), true);
-      SK.show(SK.$("seed-gate"), SK.keys.keyType === "seed");
-      SK.show(SK.$("seed-body"), SK.keys.keyType !== "seed");
-      SK.show(SK.$("seed-words-list"), SK.keys.keyType === "seed");
-      SK.show(SK.$("keys-result-text"), SK.keys.keyType !== "seed");
+      if (SK.keys.keyType === "seed") {
+        SK.$("seed-gate-copy").textContent =
+          "This is a wallet seed. Anyone who sees it can spend the funds.";
+        SK.$("seed-reveal").textContent = "Reveal words";
+        SK.show(SK.$("seed-gate"), true);
+        SK.show(SK.$("seed-body"), false);
+        SK.show(SK.$("seed-words-list"), true);
+        SK.show(SK.$("keys-result-text"), false);
+      } else if (asym) {
+        SK.$("seed-gate-copy").textContent =
+          "Private material is hidden. It is as sensitive as a wallet seed.";
+        SK.$("seed-reveal").textContent = "Reveal private";
+        var revealHelp = SK.$("seed-reveal").parentNode.querySelector('[data-help="keys.reveal"],[data-help="keys.reveal.private"]');
+        if (revealHelp) revealHelp.setAttribute("data-help", "keys.reveal.private");
+        SK.show(SK.$("seed-gate"), true);
+        SK.show(SK.$("seed-body"), true);
+        SK.show(SK.$("seed-words-list"), false);
+        SK.show(SK.$("keys-result-text"), true);
+        SK.show(SK.$("keys-private-text"), false);
+      } else {
+        var revealHelpSeed = SK.$("seed-reveal").parentNode.querySelector('[data-help]');
+        if (revealHelpSeed) revealHelpSeed.setAttribute("data-help", "keys.reveal");
+        SK.show(SK.$("seed-gate"), false);
+        SK.show(SK.$("seed-body"), true);
+        SK.show(SK.$("seed-words-list"), false);
+        SK.show(SK.$("keys-result-text"), true);
+      }
       SK.show(SK.$("seed-send-wrap"), SK.keys.keyType === "seed");
       SK.$("seed-hide").textContent = "Hide";
       SK.syncKeysConfirmUi();
@@ -197,13 +258,18 @@ SK.initKeys = function () {
   });
   SK.$("seed-reveal").addEventListener("click", function () {
     SK.keys.revealed = true;
-    SK.keys.confirmed = false;
-    SK.keys.confirming = false;
-    SK.keys.challenge = null;
     SK.keys.hidden = false;
-    SK.show(SK.$("seed-gate"), false);
-    SK.show(SK.$("seed-body"), true);
-    SK.show(SK.$("seed-words-list"), true);
+    if (SK.keys.lastKind === "seed") {
+      SK.keys.confirmed = false;
+      SK.keys.confirming = false;
+      SK.keys.challenge = null;
+      SK.show(SK.$("seed-gate"), false);
+      SK.show(SK.$("seed-body"), true);
+      SK.show(SK.$("seed-words-list"), true);
+    } else if (SK.isAsymmetricKey(SK.keys.lastKind)) {
+      SK.show(SK.$("seed-gate"), false);
+      SK.show(SK.$("keys-private-text"), true);
+    }
     SK.syncKeysConfirmUi();
   });
   SK.$("seed-wrote").addEventListener("click", function () {
@@ -252,17 +318,31 @@ SK.initKeys = function () {
   SK.$("seed-hide").addEventListener("click", function () {
     if (SK.keys.confirming) return;
     SK.keys.hidden = !SK.keys.hidden;
-    if (SK.keys.lastKind === "seed") SK.show(SK.$("seed-words-list"), !SK.keys.hidden);
-    else SK.$("keys-result-text").textContent = SK.keys.hidden ? "••••••••" : SK.keys.last;
+    if (SK.keys.lastKind === "seed") {
+      SK.show(SK.$("seed-words-list"), !SK.keys.hidden);
+    } else if (SK.isAsymmetricKey(SK.keys.lastKind)) {
+      SK.show(SK.$("keys-private-text"), SK.keys.revealed && !SK.keys.hidden);
+    } else {
+      SK.$("keys-result-text").textContent = SK.keys.hidden ? "••••••••" : SK.keys.last;
+    }
     SK.$("seed-hide").textContent = SK.keys.hidden ? "Show" : "Hide";
   });
   SK.$("seed-copy").addEventListener("click", function () {
     if (SK.keys.lastKind === "seed" && !SK.keys.confirmed) return;
+    if (SK.isAsymmetricKey(SK.keys.lastKind)) {
+      SK.copyText(SK.keys.last, SK.$("seed-clip"));
+      return;
+    }
     if (SK.keys.revealed && !SK.keys.hidden) SK.copyText(SK.keys.last, SK.$("seed-clip"));
+  });
+  SK.$("seed-copy-private").addEventListener("click", function () {
+    if (!SK.isAsymmetricKey(SK.keys.lastKind) || !SK.keys.revealed || !SK.keys.private) return;
+    SK.copyText(SK.keys.private, SK.$("seed-clip"));
   });
   SK.$("seed-send").addEventListener("click", function () {
     if (!SK.keys.last) return;
     if (SK.keys.lastKind === "seed" && !SK.keys.confirmed) return;
+    if (SK.keys.lastKind !== "seed") return;
     var words = SK.keys.last;
     SK.wipeKeys();
     SK.switchTab("derive");

@@ -5,7 +5,7 @@ Local air-gap secret generator. Python owns all randomness. On macOS it is a sma
 Four tabs:
 
 - **Passwords** — PIN, random password, memorable BIP-39-word password, Diceware phrase, random persona (disposable signup details; no email)
-- **Keys** — BIP-39 12/24, hex key, UUID v4, backup-code list. BIP-39 requires a write-down check before copy / print / **Send to Derive** (moves a seed, then clears this tab). BIP-39 passphrases are entered on Derive only.
+- **Keys** — BIP-39 12/24 (write-down check before copy / print / **Send to Derive**), hex key, UUID v4, backup-code list, SSH Ed25519, age identity. BIP-39 passphrases are entered on Derive only. SSH/age show the public line first; private stays behind Reveal.
 - **Verify** — vendor file checksum (autodetect), OpenPGP detached signature (you supply the public key), compare two files, hash a folder, BIP-39 phrase check
 - **Derive** — Bitcoin BIP-84 address lists (optional BIP-86 taproot) with BIP-380 watch descriptors; BIP-85 English child mnemonics; Nostr fresh pair or NIP-06. Public first; private behind Reveal. **?** explains the selected option. Copy-per-field. **Clear words only** does not wipe the public result.
 

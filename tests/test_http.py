@@ -218,6 +218,32 @@ class HttpApiTests(unittest.TestCase):
         self.assertEqual(body["meta"]["type"], "persona")
         self.assertIn("Full name:", body["value"])
 
+    def test_generate_ssh(self):
+        req = Request(
+            "http://127.0.0.1:18765/api/generate",
+            data=json.dumps([{"type": "ssh"}]).encode(),
+            headers={"Content-Type": "application/json"},
+            method="POST",
+        )
+        body = json.loads(urlopen(req).read().decode("utf-8"))
+        self.assertTrue(body["ok"], body)
+        self.assertEqual(body["meta"]["type"], "ssh")
+        self.assertTrue(body["value"]["public"].startswith("ssh-ed25519 "))
+        self.assertIn("BEGIN OPENSSH PRIVATE KEY", body["value"]["private"])
+
+    def test_generate_age(self):
+        req = Request(
+            "http://127.0.0.1:18765/api/generate",
+            data=json.dumps([{"type": "age"}]).encode(),
+            headers={"Content-Type": "application/json"},
+            method="POST",
+        )
+        body = json.loads(urlopen(req).read().decode("utf-8"))
+        self.assertTrue(body["ok"], body)
+        self.assertEqual(body["meta"]["type"], "age")
+        self.assertTrue(body["value"]["public"].startswith("age1"))
+        self.assertTrue(body["value"]["private"].startswith("AGE-SECRET-KEY-1"))
+
     def test_rejects_bad_content_length(self):
         conn = http.client.HTTPConnection("127.0.0.1", 18765, timeout=2)
         try:

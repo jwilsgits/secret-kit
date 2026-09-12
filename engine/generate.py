@@ -1,3 +1,4 @@
+from engine.age import generate_age_x25519
 from engine.bip39 import generate_mnemonic, validate_mnemonic
 from engine.charset import CharsetError
 from engine.entropy import ByteSource, EntropyError, EntropyPool
@@ -6,6 +7,7 @@ from engine.memorable import generate_memorable
 from engine.password import generate_password
 from engine.persona import FIELD_KEYS, generate_persona
 from engine.pin import generate_pin
+from engine.ssh import generate_ssh_ed25519
 
 
 def _pin(source, spec):
@@ -79,6 +81,16 @@ def _persona(source, spec):
     }
 
 
+def _ssh(source, spec):
+    value = generate_ssh_ed25519(source)
+    return value, {"type": "ssh", "comment": value.get("comment")}
+
+
+def _age(source, spec):
+    value = generate_age_x25519(source)
+    return value, {"type": "age"}
+
+
 HANDLERS = {
     "pin": _pin,
     "password": _password,
@@ -89,6 +101,8 @@ HANDLERS = {
     "codes": _codes,
     "seed": _seed,
     "persona": _persona,
+    "ssh": _ssh,
+    "age": _age,
 }
 
 
