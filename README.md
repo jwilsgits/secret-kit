@@ -1,6 +1,6 @@
 # Secret Kit
 
-Local air-gap secret generator. Python owns all randomness. On macOS it is a small native window; in Docker/OrbStack/LXC it is a loopback web UI. Nothing is saved to disk. Nothing is sent anywhere.
+Local air-gap secret generator. Python owns all randomness. On macOS it is a small native window; in Docker/OrbStack/LXC it is a loopback web UI. Nothing is saved to disk. Nothing is sent anywhere. Product charter and capability roadmap: [PROJECT.md](PROJECT.md).
 
 Four tabs:
 
